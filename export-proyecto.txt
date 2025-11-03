@@ -1,0 +1,536 @@
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.editorconfig
+=======================
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,css,scss,sass,less,styl}]
+charset = utf-8
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+max_line_length = 100
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitattributes
+=======================
+* text=auto eol=lf
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitignore
+=======================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.prettierrc.json
+=======================
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 100
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\env.d.ts
+=======================
+/// <reference types="vite/client" />
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\eslint.config.ts
+=======================
+import { globalIgnores } from 'eslint/config'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import pluginVue from 'eslint-plugin-vue'
+import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+
+// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
+// import { configureVueProject } from '@vue/eslint-config-typescript'
+// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
+// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+
+export default defineConfigWithVueTs(
+  {
+    name: 'app/files-to-lint',
+    files: ['**/*.{ts,mts,tsx,vue}'],
+  },
+
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+
+  pluginVue.configs['flat/essential'],
+  vueTsConfigs.recommended,
+  skipFormatting,
+)
+
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\index.html
+=======================
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\package.json
+=======================
+{
+  "name": "ocr-splitter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix --cache",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@primevue/themes": "^4.4.1",
+    "pinia": "^3.0.3",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.4.1",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.18.11",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue-jsx": "^5.1.1",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.37.0",
+    "eslint-plugin-vue": "~10.5.0",
+    "jiti": "^2.6.1",
+    "npm-run-all2": "^8.0.4",
+    "postcss": "^8.5.6",
+    "prettier": "3.6.2",
+    "tailwindcss": "^4.1.16",
+    "typescript": "~5.9.0",
+    "vite": "^7.1.11",
+    "vite-plugin-vue-devtools": "^8.0.3",
+    "vue-tsc": "^3.1.1"
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\postcss.config.cjs
+=======================
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\public\favicon.ico
+=======================
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\README.md
+=======================
+# ocr-splitter
+
+This template should help get you started developing with Vue 3 in Vite.
+
+## Recommended IDE Setup
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+
+## Recommended Browser Setup
+
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\App.vue
+=======================
+<script setup lang="ts">
+
+</script>
+
+<template>
+
+  <div class="min-h-screen p-6 bg-slate-50">
+    <h1 class="text-2xl font-bold">Tailwind test ✅</h1>
+  </div>
+
+
+
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppCard.vue
+=======================
+<script setup lang="ts">
+import Card from 'primevue/card'
+import Divider from 'primevue/divider'
+
+defineProps<{
+    title?: string
+    subtitle?: string
+    dense?: boolean   // reduce paddings si true
+}>()
+</script>
+
+<template>
+    <Card :class="[
+        'bg-[var(--surface-0)] text-[var(--text-0)] border border-[var(--border)] rounded-2xl shadow-sm',
+        dense ? 'p-0' : ''
+    ]">
+        <!-- Header -->
+        <template #title>
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-semibold leading-tight">{{ title }}</h2>
+                    <p v-if="subtitle" class="mt-0.5 text-sm text-[var(--text-muted)]">{{ subtitle }}</p>
+                </div>
+                <!-- acciones (iconos/botones) -->
+                <div class="flex items-center gap-2">
+                    <slot name="actions" />
+                </div>
+            </div>
+        </template>
+
+        <!-- Divider sutil -->
+        <template #subtitle>
+            <Divider class="!my-2" />
+        </template>
+
+        <!-- Contenido -->
+        <template #content>
+            <div class="p-2 sm:p-3">
+                <slot />
+            </div>
+        </template>
+
+        <!-- Footer opcional -->
+        <template #footer>
+            <div class="p-2 sm:p-3">
+                <slot name="footer" />
+            </div>
+        </template>
+    </Card>
+</template>
+
+<style scoped>
+/* Ajustes mínimos al Card si es necesario */
+</style>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\main.ts
+=======================
+import './styles/tailwind.css'
+import './styles/variables.css'
+import './assets/main.css'
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+app.mount('#app')
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\router\index.ts
+=======================
+import { createRouter, createWebHistory } from 'vue-router'
+import UploadView from '../views/UploadView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    
+    {
+      path: '/',
+      name: 'upload',
+      component: UploadView,
+    },
+  ],
+})
+
+export default router
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\counter.ts
+=======================
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', () => {
+  const count = ref(0)
+  const doubleCount = computed(() => count.value * 2)
+  function increment() {
+    count.value++
+  }
+
+  return { count, doubleCount, increment }
+})
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\tailwind.css
+=======================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\variables.css
+=======================
+:root {
+  --brand-primary: #4F46E5;
+  --brand-success: #16A34A;
+  --brand-warning: #F59E0B;
+  --brand-danger:  #DC2626;
+
+  --surface-0: #ffffff;
+  --surface-1: #f8fafc;
+  --text-0: #0f172a;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+}
+
+:root.dark {
+  --surface-0: #0b0f1a;
+  --surface-1: #111827;
+  --text-0: #e5e7eb;
+  --text-muted: #9ca3af;
+  --border: #1f2937;
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\UploadView.vue
+=======================
+<script setup lang="ts">
+import AppCard from '@/components/AppCard.vue'
+import Button from 'primevue/button'
+</script>
+
+<template>
+    <div class="min-h-screen bg-[var(--surface-1)] p-4 sm:p-6">
+        <div class="max-w-3xl mx-auto">
+            <AppCard title="Cargar boleta" subtitle="Paso 1 · Subir imagen">
+                <div class="text-sm text-[var(--text-muted)]">
+                    Aquí irá el componente de subida y las validaciones.
+                </div>
+
+                <template #actions>
+                    <Button label="Ayuda" icon="pi pi-question-circle" severity="secondary" text />
+                </template>
+
+                <template #footer>
+                    <div class="flex justify-end">
+                        <Button label="Continuar" icon="pi pi-arrow-right" />
+                    </div>
+                </template>
+            </AppCard>
+        </div>
+    </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tailwind.config.js
+=======================
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  theme: { extend: {} },
+  plugins: [],
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.app.json
+=======================
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.json
+=======================
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.node.json
+=======================
+{
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\vite.config.ts
+=======================
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    vueJsx(),
+    vueDevTools(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+  },
+})

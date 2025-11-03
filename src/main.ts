@@ -12,7 +12,7 @@ import 'primeicons/primeicons.css'
 
 import App from './App.vue'
 import router from './router'
-
+import { useUiStore } from './stores/ui'
 const app = createApp(App)
 
 app.use(createPinia())
@@ -20,5 +20,6 @@ app.use(router)
 
 // ⬇️ Y registra PrimeVue con un tema (Aura de ejemplo)
 app.use(PrimeVue, { theme: { preset: Aura } })
-
+const ui = useUiStore()
+ui.applyTheme()
 app.mount('#app')

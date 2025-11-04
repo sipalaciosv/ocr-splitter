@@ -1,0 +1,1331 @@
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.editorconfig
+=======================
+[*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,css,scss,sass,less,styl}]
+charset = utf-8
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+max_line_length = 100
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitattributes
+=======================
+* text=auto eol=lf
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitignore
+=======================
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.prettierrc.json
+=======================
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 100
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\env.d.ts
+=======================
+/// <reference types="vite/client" />
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\eslint.config.ts
+=======================
+import { globalIgnores } from 'eslint/config'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import pluginVue from 'eslint-plugin-vue'
+import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+
+// To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
+// import { configureVueProject } from '@vue/eslint-config-typescript'
+// configureVueProject({ scriptLangs: ['ts', 'tsx'] })
+// More info at https://github.com/vuejs/eslint-config-typescript/#advanced-setup
+
+export default defineConfigWithVueTs(
+  {
+    name: 'app/files-to-lint',
+    files: ['**/*.{ts,mts,tsx,vue}'],
+  },
+
+  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+
+  pluginVue.configs['flat/essential'],
+  vueTsConfigs.recommended,
+  skipFormatting,
+)
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\exp.js
+=======================
+// exportarProyecto.js
+
+import fs from "fs";
+import path from "path";
+
+
+// Carpetas/archivos a ignorar
+const ignoreDirs = new Set([
+  "node_modules", ".git", "dist", "build", ".next", ".vercel", ".nuxt",
+  "coverage", ".turbo", ".idea", ".vscode", "out"
+]);
+
+// Extensiones de imagen que se omiten (solo se muestra la ruta)
+const imageExts = new Set([
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif", ".svg",
+  ".avif", ".ico"
+]);
+
+function esDir(ruta) {
+  try { return fs.statSync(ruta).isDirectory(); } catch { return false; }
+}
+
+function esImagen(ruta) {
+  return imageExts.has(path.extname(ruta).toLowerCase());
+}
+
+function leerDirectorio(dir, output = []) {
+  let items;
+  try {
+    items = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return output; // sin permisos o errores de lectura
+  }
+
+  for (const entry of items) {
+    const rutaCompleta = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      if (!ignoreDirs.has(entry.name)) {
+        leerDirectorio(rutaCompleta, output);
+      }
+      continue;
+    }
+
+    // Si es imagen: solo ruta, sin contenido
+    if (esImagen(rutaCompleta)) {
+      output.push(
+        `\n=======================\n📄 ${rutaCompleta}\n=======================`
+      );
+      continue;
+    }
+
+    // Para otros archivos: intenta leer como texto
+    try {
+      const contenido = fs.readFileSync(rutaCompleta, "utf8");
+      output.push(
+        `\n=======================\n📄 ${rutaCompleta}\n=======================\n${contenido}`
+      );
+    } catch {
+      // Si no es texto (binario u otro error), también solo ruta
+      output.push(
+        `\n=======================\n📄 ${rutaCompleta}\n=======================`
+      );
+    }
+  }
+
+  return output;
+}
+
+// Ejecutar desde la raíz actual del proyecto
+const root = process.cwd();
+const resultado = leerDirectorio(root);
+
+// Guardar salida
+fs.writeFileSync("export-proyecto.txt", resultado.join("\n"), "utf8");
+console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin contenido).");
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\index.html
+=======================
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\package.json
+=======================
+{
+  "name": "ocr-splitter",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "eslint . --fix --cache",
+    "format": "prettier --write src/"
+  },
+  "dependencies": {
+    "@primevue/themes": "^4.4.1",
+    "pinia": "^3.0.3",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.4.1",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.16",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.18.11",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vitejs/plugin-vue-jsx": "^5.1.1",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/tsconfig": "^0.8.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.37.0",
+    "eslint-plugin-vue": "~10.5.0",
+    "jiti": "^2.6.1",
+    "npm-run-all2": "^8.0.4",
+    "postcss": "^8.5.6",
+    "prettier": "3.6.2",
+    "tailwindcss": "^4.1.16",
+    "typescript": "~5.9.0",
+    "vite": "^7.1.11",
+    "vite-plugin-vue-devtools": "^8.0.3",
+    "vue-tsc": "^3.1.1"
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\postcss.config.cjs
+=======================
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\public\favicon.ico
+=======================
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\README.md
+=======================
+# ocr-splitter
+
+This template should help get you started developing with Vue 3 in Vite.
+
+## Recommended IDE Setup
+
+[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+
+## Recommended Browser Setup
+
+- Chromium-based browsers (Chrome, Edge, Brave, etc.):
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
+  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
+- Firefox:
+  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
+  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+
+## Type Support for `.vue` Imports in TS
+
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+
+## Customize configuration
+
+See [Vite Configuration Reference](https://vite.dev/config/).
+
+## Project Setup
+
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\App.vue
+=======================
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import LayoutDefault from '@/layouts/LayoutDefault.vue'
+</script>
+
+<template>
+  <LayoutDefault>
+    <RouterView />
+  </LayoutDefault>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\assets\main.css
+=======================
+/* Fuente global */
+html, body, #app {
+  font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* PrimeVue hereda del body, pero garantizamos consistencia */
+.p-component {
+  font-family: inherit;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppCard.vue
+=======================
+<script setup lang="ts">
+import Card from 'primevue/card'
+import Divider from 'primevue/divider'
+
+defineProps<{
+    title?: string
+    subtitle?: string
+    dense?: boolean
+}>()
+</script>
+
+<template>
+    <!-- Wrapper que controla el look (fondo, borde, sombras) -->
+    <div class=" rounded-[var(--radius-2xl)]
+    transition-all duration-200 hover:ring-1
+    bg-white dark:bg-[#1a1c23]
+    text-[#0f172a] dark:text-[#e5e7eb]
+    border border-[#e5e7eb] dark:border-[#2a2d35]
+    shadow-[0_10px_30px_rgba(2,6,23,0.06)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+    hover:shadow-[0_14px_40px_rgba(2,6,23,0.10)] dark:hover:shadow-[0_14px_40px_rgba(0,0,0,0.45)]">
+        <!-- Card de PrimeVue SIN fondo/borde (transparente) -->
+        <Card :pt="{
+            root: { class: 'bg-transparent border-0 shadow-none' },
+            body: { class: 'p-0' }
+        }">
+            <!-- Header -->
+            <template #title>
+                <div :class="['flex items-start justify-between gap-3', dense ? 'p-3' : 'p-4 sm:p-5']">
+                    <div>
+                        <h2 class="text-xl font-semibold leading-tight tracking-tight">
+                            {{ title }}
+                        </h2>
+                        <p v-if="subtitle" class="mt-1 text-sm text-[var(--text-muted)]">
+                            {{ subtitle }}
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <slot name="actions" />
+                    </div>
+                </div>
+            </template>
+
+            <!-- Divider -->
+            <template #subtitle>
+                <Divider class="!my-0 !border-t !border-[var(--border)]" />
+            </template>
+
+            <!-- Contenido -->
+            <template #content>
+                <div :class="[dense ? 'p-3' : 'p-4 sm:p-5']">
+                    <slot />
+                </div>
+            </template>
+
+            <!-- Footer -->
+            <template #footer>
+                <div :class="['border-t border-[var(--border)]', dense ? 'p-3' : 'p-4 sm:p-5']">
+                    <slot name="footer" />
+                </div>
+            </template>
+        </Card>
+    </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppFooter.vue
+=======================
+<script setup lang="ts">
+const year = new Date().getFullYear()
+</script>
+
+<template>
+    <footer data-app-footer class="mt-10 border-t border-[var(--border)] bg-[var(--surface-0)]">
+        <div class="max-w-6xl mx-auto px-4 py-6 text-sm">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p class="text-[var(--text-muted)]">
+                    © {{ year }} OCR Splitter — Prototipo de tesis
+                </p>
+                <div class="flex items-center gap-4">
+                    <a class="hover:underline text-[var(--text-muted)]" href="#" rel="nofollow">Ayuda</a>
+                    <a class="hover:underline text-[var(--text-muted)]" href="#" rel="nofollow">Acerca de</a>
+                    <a class="hover:underline text-[var(--text-muted)]" href="#" rel="nofollow">Privacidad</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppNavbar.vue
+=======================
+<script setup lang="ts">
+import Toolbar from 'primevue/toolbar'
+import Button from 'primevue/button'
+import Avatar from 'primevue/avatar'
+import { useUiStore } from '@/stores/ui'
+import { useRouter } from 'vue-router'
+
+const ui = useUiStore()
+const router = useRouter()
+
+function goHome() {
+    router.push({ path: '/' })
+}
+</script>
+
+<template>
+<header data-app-navbar class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
+        <Toolbar class="max-w-6xl mx-auto px-3 sm:px-4">
+            <template #start>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Logo / marca -->
+                    <Avatar shape="circle" class="bg-[var(--brand-primary)] text-white" icon="pi pi-receipt" />
+                    <button class="text-base sm:text-lg font-semibold hover:opacity-80 transition" @click="goHome"
+                        aria-label="Inicio">
+                        OCR Splitter
+                    </button>
+                </div>
+            </template>
+
+            <template #center>
+                <!-- Links centrados (se ocultan en móvil) -->
+                <nav class="hidden md:flex items-center gap-1">
+                    <Button label="Subir" text @click="router.push('/')" />
+                    <Button label="Grupo" text @click="router.push('/grupo/demo')" />
+                    <Button label="Resumen" text @click="router.push('/resumen/demo')" />
+                </nav>
+            </template>
+
+            <template #end>
+                <div class="flex items-center gap-1 sm:gap-2">
+                    <!-- Modo oscuro -->
+                    <Button :label="ui.dark ? 'Claro' : 'Oscuro'" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'" text
+                        @click="ui.toggleDark()" aria-label="Alternar tema" />
+                    <!-- Acción secundaria / perfil -->
+                    <Button icon="pi pi-user" text aria-label="Perfil" />
+                </div>
+            </template>
+        </Toolbar>
+    </header>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\OCRSplitter\GroupBoard.vue
+=======================
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import AppCard from '@/components/AppCard.vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import MultiSelect from 'primevue/multiselect'
+import Tag from 'primevue/tag'
+import Button from 'primevue/button'
+import Divider from 'primevue/divider'
+import { useToast } from 'primevue/usetoast'
+
+import {
+    mockGetGroupById,
+    mockGetReceiptById,
+    mockListUsersByIds,
+    type MockGroup,
+    type MockUser,
+    type MockReceipt,
+    type MockReceiptItem
+} from '@/services/mocks'
+
+type Props = {
+    groupId: string
+}
+const props = defineProps<Props>()
+
+const toast = useToast()
+const loading = ref(true)
+const group = ref<MockGroup | null>(null)
+const users = ref<MockUser[]>([])
+const receipt = ref<MockReceipt | null>(null)
+const items = ref<MockReceiptItem[]>([]) // editable en memoria
+
+const currency = (n: number) =>
+    n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
+
+onMounted(async () => {
+    try {
+        loading.value = true
+        const g = await mockGetGroupById(props.groupId)
+        if (!g) {
+            toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
+            loading.value = false
+            return
+        }
+        group.value = g
+        users.value = await mockListUsersByIds(g.miembros)
+        const r = await mockGetReceiptById(g.receiptId)
+        receipt.value = r
+        // clonar a “working copy”
+        items.value = r.items.map(i => ({ ...i, assignedUserIds: [...(i.assignedUserIds ?? [])] }))
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Error cargando grupo', detail: String(e), life: 4500 })
+    } finally {
+        loading.value = false
+    }
+})
+
+/** Subtotales por ítem */
+const itemSubtotal = (it: MockReceiptItem) => it.price * it.qty
+
+/** Totales por persona = sum(itemSubtotal / #asignados) */
+const totalsByUser = computed(() => {
+    const acc: Record<string, number> = {}
+    users.value.forEach(u => (acc[u.id] = 0))
+    for (const it of items.value) {
+        const assigned = it.assignedUserIds ?? []
+        if (!assigned.length) continue
+        const share = itemSubtotal(it) / assigned.length
+        for (const uid of assigned) {
+            acc[uid] = (acc[uid] ?? 0) + share
+        }
+    }
+    return acc
+})
+
+const totalGeneral = computed(() =>
+    items.value.reduce((s, it) => s + itemSubtotal(it), 0)
+)
+
+const totalAsignado = computed(() => {
+    let s = 0
+    for (const it of items.value) {
+        const c = it.assignedUserIds?.length ?? 0
+        if (c > 0) s += itemSubtotal(it)
+    }
+    return s
+})
+
+/** UI Helpers */
+const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? id
+const displayAssigned = (it: MockReceiptItem) => (it.assignedUserIds?.map(userLabel) ?? []).join(', ')
+const clearAssignments = () => {
+    items.value = items.value.map(i => ({ ...i, assignedUserIds: [] }))
+    toast.add({ severity: 'info', summary: 'Asignaciones reiniciadas', life: 2500 })
+}
+const fillMyself = (uid: string) => {
+    items.value = items.value.map(i => ({ ...i, assignedUserIds: [uid] }))
+    toast.add({ severity: 'success', summary: 'Te asignaste todos los ítems', life: 2500 })
+}
+</script>
+
+<template>
+    <div class="max-w-6xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-10 pb-8">
+        <AppCard>
+            <template #header>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="min-w-0">
+                        <div class="font-semibold text-lg leading-tight">
+                            {{ group?.nombre ?? 'Grupo' }}
+                        </div>
+                        <div class="text-xs opacity-70">
+                            Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta: {{
+                            currency(totalGeneral) }}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <Button :disabled="loading" label="Reiniciar asignaciones" @click="clearAssignments" />
+                        <!-- Ejemplo de acción rápida: asignarme todo (cambiar uid por el real cuando haya auth) -->
+                        <Button :disabled="loading" label="Asignarme todo" severity="secondary"
+                            @click="fillMyself(group?.miembros[0] ?? '')" />
+                    </div>
+                </div>
+            </template>
+
+            <div class="grid gap-4 lg:grid-cols-12">
+                <!-- IZQUIERDA: Tabla de ítems -->
+                <div class="lg:col-span-8">
+                    <div
+                        class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
+                        <div class="p-4 flex items-center justify-between">
+                            <div class="font-medium">Ítems de la boleta</div>
+                            <div class="text-sm opacity-70">Divide seleccionando uno o más miembros</div>
+                        </div>
+
+                        <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="min-width: 100%"
+                            class="text-sm" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
+                            <Column field="name" header="Producto" sortable style="width: 32%">
+                                <template #body="{ data }">
+                                    <div class="font-medium">{{ data.name }}</div>
+                                    <div class="text-xs opacity-70" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                                        Compartido entre {{ data.assignedUserIds.length }}
+                                    </div>
+                                </template>
+                            </Column>
+
+                            <Column field="price" header="Precio" sortable style="width: 14%">
+                                <template #body="{ data }">{{ currency(data.price) }}</template>
+                            </Column>
+
+                            <Column field="qty" header="Cant." sortable style="width: 10%" />
+
+                            <Column header="Subtotal" sortable style="width: 18%">
+                                <template #body="{ data }">
+                                    {{ currency(data.price * data.qty) }}
+                                </template>
+                            </Column>
+
+                            <Column header="Asignado a" style="width: 26%">
+                                <template #body="{ data }">
+                                    <MultiSelect v-model="data.assignedUserIds" :options="users" optionLabel="nombre"
+                                        optionValue="id" display="chip" class="w-full"
+                                        placeholder="Selecciona personas..." />
+                                    <div class="mt-1 flex flex-wrap gap-1"
+                                        v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                                        <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
+                                    </div>
+                                </template>
+                            </Column>
+                        </DataTable>
+                    </div>
+                </div>
+
+                <!-- DERECHA: Totales -->
+                <div class="lg:col-span-4">
+                    <div
+                        class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
+                        <div class="p-4">
+                            <div class="font-medium">Resumen</div>
+                            <div class="text-xs opacity-70">Se reparte proporcionalmente por ítem</div>
+
+                            <Divider class="my-3" />
+
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Total boleta</span>
+                                <span class="font-medium">{{ currency(totalGeneral) }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-4">
+                                <span>Ítems asignados</span>
+                                <span class="font-medium">{{ currency(totalAsignado) }}</span>
+                            </div>
+
+                            <div class="text-xs opacity-70 mb-2">Totales por persona</div>
+                            <div class="space-y-2">
+                                <div v-for="u in users" :key="u.id" class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="h-6 w-6 rounded-full bg-[var(--surface-3)] grid place-items-center text-xs">
+                                            {{ u.nombre.charAt(0).toUpperCase() }}
+                                        </div>
+                                        <span class="text-sm">{{ u.nombre }}</span>
+                                    </div>
+                                    <div class="font-semibold">{{ currency(totalsByUser[u.id] ?? 0) }}</div>
+                                </div>
+                            </div>
+
+                            <Divider class="my-3" />
+
+                            <div class="flex gap-2">
+                                <Button label="Copiar link del grupo" icon="pi pi-link" class="w-full"
+                                    @click="navigator.clipboard.writeText(location.href)" />
+                                <Button label="Compartir" icon="pi pi-share-alt" severity="secondary" class="w-full"
+                                    @click="navigator.share?.({ title: group?.nombre, url: location.href })" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </AppCard>
+    </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\layouts\LayoutDefault.vue
+=======================
+<script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref } from 'vue'
+import AppNavbar from '@/components/AppNavbar.vue'
+import AppFooter from '@/components/AppFooter.vue'
+import Toast from 'primevue/toast'
+
+const spacerH = ref('24px') // bajo navbar
+const spacerF = ref('24px') // sobre footer
+
+let roH: ResizeObserver | null = null
+let roF: ResizeObserver | null = null
+
+function measureHeader() {
+  const el = document.querySelector<HTMLElement>('header[data-app-navbar]')
+  if (!el) return
+  const h = el.getBoundingClientRect().height
+  spacerH.value = `calc(${h}px + 16px)`
+}
+
+function measureFooter() {
+  const el = document.querySelector<HTMLElement>('footer[data-app-footer]')
+  if (!el) return
+  const h = el.getBoundingClientRect().height
+  spacerF.value = `calc(${h}px + 16px)`
+}
+
+function handleResize() {
+  measureHeader()
+  measureFooter()
+}
+
+onMounted(() => {
+  measureHeader()
+  measureFooter()
+
+  const headEl = document.querySelector<HTMLElement>('header[data-app-navbar]')
+  const footEl = document.querySelector<HTMLElement>('footer[data-app-footer]')
+
+  if (headEl && 'ResizeObserver' in window) {
+    roH = new ResizeObserver(measureHeader)
+    roH.observe(headEl)
+  }
+  if (footEl && 'ResizeObserver' in window) {
+    roF = new ResizeObserver(measureFooter)
+    roF.observe(footEl)
+  }
+  window.addEventListener('resize', handleResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  roH?.disconnect()
+  roF?.disconnect()
+})
+</script>
+
+<template>
+  <div class="min-h-screen flex flex-col bg-[var(--surface-1)] text-[var(--text-0)]">
+    <AppNavbar />
+    <Toast position="top-right" />
+
+    <!-- Spacer dinámico bajo navbar -->
+    <div :style="{ height: spacerH }" class="shrink-0 pointer-events-none"></div>
+
+    <main class="flex-1 w-full">
+      <div class="max-w-6xl mx-auto px-3 sm:px-4">
+        <slot />
+      </div>
+    </main>
+
+    <!-- Spacer dinámico sobre footer -->
+    <div :style="{ height: spacerF }" class="shrink-0 pointer-events-none"></div>
+
+    <AppFooter />
+  </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\main.ts
+=======================
+import './styles/tailwind.css'
+import './styles/variables.css'
+import "./assets/main.css"
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+// ⬇️ Agrega estas 3 líneas
+import PrimeVue from 'primevue/config'
+import Aura from '@primevue/themes/aura'
+import 'primeicons/primeicons.css'
+import ToastService from 'primevue/toastservice'  
+import App from './App.vue'
+import router from './router'
+import { useUiStore } from './stores/ui'
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+// ⬇️ Y registra PrimeVue con un tema (Aura de ejemplo)
+app.use(PrimeVue, { theme: { preset: Aura } })
+app.use(ToastService)  
+const ui = useUiStore()
+
+ui.initTheme()
+app.mount('#app')
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\router\index.ts
+=======================
+import { createRouter, createWebHistory } from 'vue-router'
+import UploadView from '../views/UploadView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    
+    {
+      path: '/',
+      name: 'upload',
+      component: UploadView,
+    },
+    {
+        path: '/grupo/:id',
+        name: 'grupo',
+        component: () => import('@/views/GroupView.vue')
+      }
+  ],
+})
+
+export default router
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\services\mocks.ts
+=======================
+// src/services/mocks.ts
+// === Tipos ===
+export type MockUser = {
+  id: string
+  nombre: string
+}
+
+export type MockReceiptItem = {
+  id: string
+  name: string
+  price: number
+  qty: number
+  assignedUserIds?: string[] // multi-asignación para dividir
+}
+
+export type MockReceipt = {
+  id: string
+  titulo: string
+  items: MockReceiptItem[]
+}
+
+export type MockGroup = {
+  id: string
+  nombre: string
+  miembros: string[] // ids de usuarios
+  receiptId: string
+}
+
+// === Datos base ===
+const USERS: MockUser[] = [
+  { id: 'u1', nombre: 'Seba' },
+  { id: 'u2', nombre: 'Pablo' },
+  { id: 'u3', nombre: 'Vale' },
+  { id: 'u4', nombre: 'Kata' },
+]
+
+const RECEIPTS: MockReceipt[] = [
+  {
+    id: 'r_demo',
+    titulo: 'Pub Viernes · 2025-11-01',
+    items: [
+      { id: 'i1', name: 'Papas fritas', price: 6000, qty: 1, assignedUserIds: ['u1', 'u2'] },
+      { id: 'i2', name: 'Cerveza',      price: 3000, qty: 2, assignedUserIds: ['u3'] },
+      { id: 'i3', name: 'Pizza',        price: 12000, qty: 1, assignedUserIds: ['u1'] },
+      { id: 'i4', name: 'Bebida',       price: 2500, qty: 3, assignedUserIds: [] },
+    ]
+  }
+]
+
+const GROUPS: MockGroup[] = [
+  {
+    id: 'grp_demo',
+    nombre: 'Viernes en el Pub',
+    miembros: ['u1', 'u2', 'u3'],
+    receiptId: 'r_demo'
+  }
+]
+
+// === Helpers simulando “API” ===
+const delay = (ms = 350) => new Promise(res => setTimeout(res, ms))
+
+export async function mockGetGroupById(id: string): Promise<MockGroup | null> {
+  await delay()
+  return GROUPS.find(g => g.id === id) ?? null
+}
+
+export async function mockGetReceiptById(id: string): Promise<MockReceipt> {
+  await delay()
+  const r = RECEIPTS.find(r => r.id === id)
+  if (!r) throw new Error('Receipt no encontrado')
+  // devolver copia inmutable
+  return JSON.parse(JSON.stringify(r))
+}
+
+export async function mockListUsersByIds(ids: string[]): Promise<MockUser[]> {
+  await delay(120)
+  return USERS.filter(u => ids.includes(u.id))
+}
+
+// (Opcional) crear grupo nuevo a partir de una boleta escaneada
+export async function mockCreateGroupFromReceipt(params: { nombre: string; miembroIds: string[]; receipt: MockReceipt }): Promise<MockGroup> {
+  await delay()
+  const rid = `r_${Math.random().toString(36).slice(2, 7)}`
+  const gid = `grp_${Math.random().toString(36).slice(2, 7)}`
+  RECEIPTS.push({ ...params.receipt, id: rid })
+  const g: MockGroup = { id: gid, nombre: params.nombre, miembros: params.miembroIds, receiptId: rid }
+  GROUPS.push(g)
+  return g
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\counter.ts
+=======================
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+
+export const useCounterStore = defineStore('counter', () => {
+  const count = ref(0)
+  const doubleCount = computed(() => count.value * 2)
+  function increment() {
+    count.value++
+  }
+
+  return { count, doubleCount, increment }
+})
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\ui.ts
+=======================
+import { defineStore } from 'pinia'
+
+const STORAGE_KEY = 'ui:dark'
+
+export const useUiStore = defineStore('ui', {
+  state: () => ({
+    dark: false,
+  }),
+  actions: {
+    initTheme() {
+      // 1) lee del storage o del SO la 1ª vez
+      const saved = localStorage.getItem(STORAGE_KEY)
+      this.dark = saved !== null
+        ? saved === '1'
+        : window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+
+      this.applyTheme()
+    },
+    applyTheme() {
+      const root = document.documentElement
+      // Tailwind
+      root.classList.toggle('dark', this.dark)
+      // Variables PrimeVue/Aura relevantes
+      root.style.setProperty('--p-card-background', this.dark ? '#1a1c23' : '#ffffff')
+      root.style.setProperty('--p-text-color', this.dark ? '#e5e7eb' : '#0f172a')
+      root.style.setProperty('--p-content-background', this.dark ? '#0b0f1a' : '#f8fafc')
+      root.style.setProperty('--p-content-border-color', this.dark ? '#2a2d35' : '#e5e7eb')
+      // sombras opcionales coherentes
+      root.style.setProperty('--shadow-card', this.dark ? '0 10px 30px rgba(0,0,0,0.35)' : '0 10px 30px rgba(2,6,23,0.06)')
+      root.style.setProperty('--shadow-card-hover', this.dark ? '0 14px 40px rgba(0,0,0,0.45)' : '0 14px 40px rgba(2,6,23,0.10)')
+    },
+    toggleDark() {
+      this.dark = !this.dark
+      localStorage.setItem(STORAGE_KEY, this.dark ? '1' : '0')
+      this.applyTheme()
+    },
+  },
+})
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\tailwind.css
+=======================
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\variables.css
+=======================
+:root {
+  --surface-0: #ffffff;   /* fondo de card en CLARO */
+  --surface-1: #f8fafc;   /* fondo de página en CLARO */
+  --border: #e5e7eb;
+  --text-0: #0f172a;
+  --text-muted: #6b7280;
+
+  --radius-2xl: 1rem;
+  --shadow-card: 0 10px 30px rgba(2, 6, 23, 0.06);
+  --shadow-card-hover: 0 14px 40px rgba(2, 6, 23, 0.10);
+}
+
+:root.dark {
+  --surface-0: #1a1c23;   /* fondo de card en OSCURO */
+  --surface-1: #0b0f1a;   /* fondo de página en OSCURO */
+  --border: #2a2d35;
+  --text-0: #e5e7eb;
+  --text-muted: #9ca3af;
+
+  --shadow-card: 0 10px 30px rgba(0,0,0,0.35);
+  --shadow-card-hover: 0 14px 40px rgba(0,0,0,0.45);
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\GroupView.vue
+=======================
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import GroupBoard from '@/components/OCRSplitter/GroupBoard.vue'
+
+const route = useRoute()
+const groupId = computed(() => String(route.params.id ?? 'grp_demo'))
+</script>
+
+<template>
+    <GroupBoard :group-id="groupId" />
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\UploadView.vue
+=======================
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useToast } from 'primevue/usetoast'
+
+import AppCard from '@/components/AppCard.vue'
+
+// PrimeVue components
+import FileUpload from 'primevue/fileupload'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import Skeleton from 'primevue/skeleton'
+import InputNumber from 'primevue/inputnumber'
+
+import { ocrMock, type OcrItem } from '@/services/mocks'
+
+// ===== state
+const toast = useToast()
+const uploading = ref(false)
+const fileName = ref<string | null>(null)
+const grupoId = ref<string | null>(null)
+const rows = ref<OcrItem[]>([])
+
+// ===== computed
+const hasResult = computed(() => rows.value.length > 0)
+const totalCLP = computed(() =>
+  new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
+    .format(rows.value.reduce((a, r) => a + (Number(r.monto) || 0), 0))
+)
+
+// ===== handlers
+async function onCustomUpload(evt: any) {
+  const file = evt.files?.[0]
+  if (!file) return
+  try {
+    uploading.value = true
+    fileName.value = file.name
+
+    // simulamos OCR
+    const res = await ocrMock(file.name)
+    grupoId.value = res.grupoId
+    rows.value = res.items
+
+    toast.add({ severity: 'success', summary: 'OCR simulado', detail: `Grupo ${res.grupoId}`, life: 2500 })
+  } catch {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo procesar la imagen.', life: 2500 })
+  } finally {
+    uploading.value = false
+  }
+}
+
+function clearAll() {
+  fileName.value = null
+  grupoId.value = null
+  rows.value = []
+}
+
+function removeRow(id: string) {
+  rows.value = rows.value.filter(r => r.id !== id)
+}
+
+</script>
+
+<template>
+  <div class="max-w-4xl mx-auto">
+    <AppCard
+      title="Cargar boleta"
+      subtitle="Paso 1 · Subir imagen"
+    >
+      <!-- Uploader -->
+      <div class="space-y-4">
+        <FileUpload
+          mode="advanced"
+          name="files[]"
+          accept="image/*,application/pdf"
+          :maxFileSize="8_000_000"
+          :multiple="false"
+          chooseLabel="Seleccionar"
+          uploadLabel="Procesar OCR"
+          cancelLabel="Limpiar"
+          :customUpload="true"
+          @uploader="onCustomUpload"
+          @clear="clearAll"
+          :pt="{
+            root: { class: 'w-full' },
+            content: { class: 'bg-transparent border border-[var(--border)] rounded-xl' }
+          }"
+        />
+
+        <!-- Estado de carga -->
+        <div v-if="uploading" class="grid grid-cols-1 gap-3">
+          <Skeleton height="12rem" class="rounded-xl" />
+          <Skeleton height="2.75rem" class="rounded-xl" />
+        </div>
+
+        <!-- Resultados -->
+        <div v-else-if="hasResult" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-[var(--text-muted)]">
+              Grupo: <span class="font-medium text-[var(--text-0)]">{{ grupoId }}</span>
+              <span v-if="fileName"> · Archivo: {{ fileName }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Tag severity="success" :value="totalCLP" />
+              <Button label="Limpiar" icon="pi pi-times" text @click="clearAll" />
+            </div>
+          </div>
+
+          <DataTable
+            :value="rows"
+            dataKey="id"
+            class="rounded-xl overflow-hidden border border-[var(--border)]"
+            :pt="{ table: { class: 'min-w-full' } }"
+          >
+            <Column field="descripcion" header="Descripción" />
+            <Column header="Monto">
+              <template #body="{ data }">
+                <InputNumber
+                  v-model="data.monto"
+                  inputId="monto"
+                  mode="currency"
+                  currency="CLP"
+                  locale="es-CL"
+                  :min="0"
+                  class="w-40"
+                />
+              </template>
+            </Column>
+            <Column field="categoria" header="Categoría">
+              <template #body="{ data }">
+                <Tag :value="data.categoria ?? '—'" />
+              </template>
+            </Column>
+            <Column header="Acciones" bodyClass="text-right">
+              <template #body="{ data }">
+                <Button icon="pi pi-trash" text severity="danger" @click="removeRow(data.id)" />
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+
+        <!-- Placeholder inicial -->
+        <div v-else class="text-sm text-[var(--text-muted)]">
+          Aquí irá el componente de subida y las validaciones.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <template #footer>
+        <div class="flex items-center justify-end gap-3">
+          <Button label="Continuar" icon="pi pi-arrow-right" :disabled="!hasResult" />
+        </div>
+      </template>
+    </AppCard>
+  </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tailwind.config.js
+=======================
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'class', 
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  theme: { extend: {} },
+  plugins: [],
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.app.json
+=======================
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.json
+=======================
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ]
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.node.json
+=======================
+{
+  "extends": "@tsconfig/node22/tsconfig.json",
+  "include": [
+    "vite.config.*",
+    "vitest.config.*",
+    "cypress.config.*",
+    "nightwatch.conf.*",
+    "playwright.config.*",
+    "eslint.config.*"
+  ],
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node"]
+  }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\vite.config.ts
+=======================
+import { fileURLToPath, URL } from 'node:url'
+
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    vue(),
+    vueJsx(),
+    vueDevTools(),
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    },
+  },
+})

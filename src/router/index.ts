@@ -10,6 +10,11 @@ const router = createRouter({
       name: 'upload',
       component: UploadView,
     },
+    {
+        path: '/grupo/:id',
+        name: 'grupo',
+        component: () => import('@/views/GroupView.vue')
+      }
   ],
 })
 

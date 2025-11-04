@@ -14,7 +14,7 @@ function goHome() {
 </script>
 
 <template>
-    <header class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
+<header data-app-navbar class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
         <Toolbar class="max-w-6xl mx-auto px-3 sm:px-4">
             <template #start>
                 <div class="flex items-center gap-2 sm:gap-3">

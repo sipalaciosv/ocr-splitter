@@ -3,7 +3,7 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-    <footer class="mt-10 border-t border-[var(--border)] bg-[var(--surface-0)]">
+    <footer data-app-footer class="mt-10 border-t border-[var(--border)] bg-[var(--surface-0)]">
         <div class="max-w-6xl mx-auto px-4 py-6 text-sm">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-[var(--text-muted)]">

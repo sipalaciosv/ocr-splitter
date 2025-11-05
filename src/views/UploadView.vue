@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
 
+
 import AppCard from '@/components/AppCard.vue'
 
 // PrimeVue components
@@ -57,7 +58,7 @@ function clearAll() {
 }
 
 function removeRow(id: string) {
-  rows.value = rows.value.filter(r => r.id !== id)
+  rows.value = rows.value.filter((r: OcrItem) => r.id !== id)
 }
 
 </script>

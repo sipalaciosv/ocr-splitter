@@ -31,7 +31,7 @@ function goHome() {
                 <!-- Links centrados (se ocultan en móvil) -->
                 <nav class="hidden md:flex items-center gap-1">
                     <Button label="Subir" text @click="router.push('/')" />
-                    <Button label="Grupo" text @click="router.push('/grupo/demo')" />
+                    <Button label="Grupo" text @click="router.push('/grupo/grp_demo')" />
                     <Button label="Resumen" text @click="router.push('/resumen/demo')" />
                 </nav>
             </template>

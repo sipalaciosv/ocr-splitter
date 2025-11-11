@@ -13,6 +13,17 @@ max_line_length = 100
 
 
 =======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.env.local
+=======================
+VITE_FB_API_KEY=AIzaSyDe1DXXFuwCjotQYD1nM7GgrQ6ATXxogDc
+VITE_FB_AUTH_DOMAIN=ocr-splitter.firebaseapp.com
+VITE_FB_PROJECT_ID=ocr-splitter
+VITE_FB_STORAGE_BUCKET=ocr-splitter.appspot.com
+VITE_FB_APP_ID=1:1009547068025:web:b05600504b1d84b23bcaa8
+VITE_FB_MESSAGING_SENDER_ID=1009547068025
+
+
+=======================
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitattributes
 =======================
 * text=auto eol=lf
@@ -74,7 +85,12 @@ __screenshots__/
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\env.d.ts
 =======================
 /// <reference types="vite/client" />
-
+declare module '*.vue' {
+  import type { DefineComponent } from 'vue'
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const component: DefineComponent<{}, {}, any>
+  export default component
+}
 
 =======================
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\eslint.config.ts
@@ -202,9 +218,7 @@ console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin conten
   </body>
 </html>
 
-
-
-=======================
+====================
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\package.json
 =======================
 {
@@ -226,6 +240,7 @@ console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin conten
   },
   "dependencies": {
     "@primevue/themes": "^4.4.1",
+    "firebase": "^12.5.0",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.4.1",
@@ -457,9 +472,14 @@ import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
 import { useUiStore } from '@/stores/ui'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const ui = useUiStore()
 const router = useRouter()
+
+const auth = useAuthStore()
+const { user } = storeToRefs(auth) // reactividad segura
 
 function goHome() {
     router.push({ path: '/' })
@@ -467,7 +487,8 @@ function goHome() {
 </script>
 
 <template>
-<header data-app-navbar class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
+    <header data-app-navbar
+        class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
         <Toolbar class="max-w-6xl mx-auto px-3 sm:px-4">
             <template #start>
                 <div class="flex items-center gap-2 sm:gap-3">
@@ -484,18 +505,22 @@ function goHome() {
                 <!-- Links centrados (se ocultan en móvil) -->
                 <nav class="hidden md:flex items-center gap-1">
                     <Button label="Subir" text @click="router.push('/')" />
-                    <Button label="Grupo" text @click="router.push('/grupo/demo')" />
+                    <Button label="Grupo" text @click="router.push('/grupo/grp_demo')" />
                     <Button label="Resumen" text @click="router.push('/resumen/demo')" />
                 </nav>
             </template>
 
             <template #end>
-                <div class="flex items-center gap-1 sm:gap-2">
-                    <!-- Modo oscuro -->
+                <div class="flex items-center gap-2">
                     <Button :label="ui.dark ? 'Claro' : 'Oscuro'" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'" text
-                        @click="ui.toggleDark()" aria-label="Alternar tema" />
-                    <!-- Acción secundaria / perfil -->
-                    <Button icon="pi pi-user" text aria-label="Perfil" />
+                        @click="ui.toggleDark()" />
+                    <template v-if="user">
+                        <span class="text-sm opacity-80 mr-2">{{ user?.email }}</span>
+                        <Button icon="pi pi-sign-out" text @click="auth.signOutApp()" />
+                    </template>
+                    <template v-else>
+                        <Button label="Entrar" text @click="router.push('/login')" />
+                    </template>
                 </div>
             </template>
         </Toolbar>
@@ -516,6 +541,7 @@ import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import { useToast } from 'primevue/usetoast'
+import { useAuthStore } from '@/stores/auth'
 
 import {
     mockGetGroupById,
@@ -531,7 +557,11 @@ type Props = {
     groupId: string
 }
 const props = defineProps<Props>()
+const auth = useAuthStore()
+const currentUserId = computed(() => auth.user?.uid ?? '')
+const editMode = ref(false)
 
+const isAdmin = computed(() => group.value?.ownerUid === currentUserId.value)
 const toast = useToast()
 const loading = ref(true)
 const group = ref<MockGroup | null>(null)
@@ -606,6 +636,37 @@ const fillMyself = (uid: string) => {
     items.value = items.value.map(i => ({ ...i, assignedUserIds: [uid] }))
     toast.add({ severity: 'success', summary: 'Te asignaste todos los ítems', life: 2500 })
 }
+// URL actual para compartir/copiar
+const currentUrl = computed(() =>
+    typeof window !== 'undefined' ? window.location.href : ''
+)
+
+function copyLink() {
+    const url = currentUrl.value
+    if (!url) return
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(url)
+        toast.add({ severity: 'success', summary: 'Link copiado', life: 2000 })
+    }
+}
+
+async function shareLink() {
+    const url = currentUrl.value
+    if (!url || typeof navigator === 'undefined') return
+
+    if (typeof navigator.share === 'function') {
+        try {
+
+            await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
+        } catch {
+            /* usuario canceló */
+        }
+    } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url)
+        toast.add({ severity: 'info', summary: 'Compartir no disponible; link copiado', life: 2500 })
+    }
+}
+
 </script>
 
 <template>
@@ -619,7 +680,7 @@ const fillMyself = (uid: string) => {
                         </div>
                         <div class="text-xs opacity-70">
                             Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta: {{
-                            currency(totalGeneral) }}
+                                currency(totalGeneral) }}
                         </div>
                     </div>
 
@@ -717,9 +778,9 @@ const fillMyself = (uid: string) => {
 
                             <div class="flex gap-2">
                                 <Button label="Copiar link del grupo" icon="pi pi-link" class="w-full"
-                                    @click="navigator.clipboard.writeText(location.href)" />
+                                    @click="copyLink" />
                                 <Button label="Compartir" icon="pi pi-share-alt" severity="secondary" class="w-full"
-                                    @click="navigator.share?.({ title: group?.nombre, url: location.href })" />
+                                    @click="shareLink" />
                             </div>
                         </div>
                     </div>
@@ -812,6 +873,29 @@ onBeforeUnmount(() => {
 
 
 =======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\lib\firebase.ts
+=======================
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FB_API_KEY,
+  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FB_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FB_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FB_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FB_APP_ID,
+}
+
+export const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+export const storage = getStorage(app)
+
+
+=======================
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\main.ts
 =======================
 import './styles/tailwind.css'
@@ -848,25 +932,88 @@ app.mount('#app')
 =======================
 import { createRouter, createWebHistory } from 'vue-router'
 import UploadView from '../views/UploadView.vue'
+import LoginView from '../views/LoginView.vue'
+import JoinGroupView from '../views/JoinGroupView.vue'
+import { useAuthStore } from '@/stores/auth'
+import { isMember } from '@/services/db'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    
-    {
-      path: '/',
-      name: 'upload',
-      component: UploadView,
-    },
-    {
-        path: '/grupo/:id',
-        name: 'grupo',
-        component: () => import('@/views/GroupView.vue')
+    { path: '/', name: 'upload', component: UploadView },
+    { path: '/login', name: 'login', component: LoginView },
+    { path: '/join/:id', name: 'join', component: JoinGroupView },
+    { path: '/grupo/:id',
+      name: 'grupo',
+      component: () => import('@/views/GroupView.vue'),
+      beforeEnter: async (to) => {
+        const auth = useAuthStore()
+        const id = String(to.params.id)
+        if (!auth.user) {
+          return { name: 'login', query: { redirect: to.fullPath } }
+        }
+        const ok = await isMember(id, auth.user.uid)
+        if (!ok) return { name: 'join', params: { id } }
+        return true
       }
+    },
   ],
 })
 
 export default router
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\services\db.ts
+=======================
+import {
+  collection, doc, getDoc, setDoc, serverTimestamp,
+} from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+
+export type GroupDoc = {
+  title: string
+  ownerUid: string
+  createdAt: any
+}
+
+export type MemberDoc = {
+  role: 'admin' | 'member'
+  joinedAt: any
+}
+
+// Crea grupo + membership admin en la misma operación (2 escrituras)
+export async function createGroup(groupId: string, title: string, ownerUid: string) {
+  const gRef = doc(db, 'groups', groupId)
+  const mRef = doc(db, 'groups', groupId, 'members', ownerUid)
+
+  await setDoc(gRef, {
+    title, ownerUid, createdAt: serverTimestamp(),
+  } as GroupDoc)
+
+  await setDoc(mRef, {
+    role: 'admin', joinedAt: serverTimestamp(),
+  } as MemberDoc)
+
+  return { groupId }
+}
+
+// Agregar miembro como 'member'
+export async function joinGroup(groupId: string, uid: string) {
+  const mRef = doc(db, 'groups', groupId, 'members', uid)
+  await setDoc(mRef, { role: 'member', joinedAt: serverTimestamp() } as MemberDoc, { merge: true })
+}
+
+export async function isMember(groupId: string, uid: string) {
+  if (!uid) return false
+  const snap = await getDoc(doc(db, 'groups', groupId, 'members', uid))
+  return snap.exists()
+}
+
+export async function isAdmin(groupId: string, uid: string) {
+  const m = await getDoc(doc(db, 'groups', groupId, 'members', uid))
+  return m.exists() && m.data()?.role === 'admin'
+}
 
 
 =======================
@@ -896,7 +1043,9 @@ export type MockReceipt = {
 export type MockGroup = {
   id: string
   nombre: string
-  miembros: string[] // ids de usuarios
+  ownerId?: string        // si prefieres mantener compatibilidad
+  ownerUid?: string       // <- usa este en el front
+  miembros: string[]
   receiptId: string
 }
 
@@ -925,6 +1074,7 @@ const GROUPS: MockGroup[] = [
   {
     id: 'grp_demo',
     nombre: 'Viernes en el Pub',
+    ownerUid: 'u1',            // <-- dueño explícito
     miembros: ['u1', 'u2', 'u3'],
     receiptId: 'r_demo'
   }
@@ -961,6 +1111,73 @@ export async function mockCreateGroupFromReceipt(params: { nombre: string; miemb
   GROUPS.push(g)
   return g
 }
+// === Tipos OCR (para UploadView) ===
+export type OcrItem = {
+  id: string
+  descripcion: string
+  monto: number
+  categoria?: string | null
+}
+
+// === Mock OCR principal ===
+export async function ocrMock(fileName: string): Promise<{ grupoId: string; items: OcrItem[] }> {
+  // Simula latencia
+  await new Promise((r) => setTimeout(r, 400))
+
+  // Genera un grupo "nuevo" de mentira (puedes cambiarlo por grp_demo si quieres)
+  const grupoId = 'grp_demo'
+
+  // Items ejemplo (puedes mutar estos datos a gusto)
+  const items: OcrItem[] = [
+    { id: 'o1', descripcion: 'Papas fritas', monto: 6000, categoria: 'Comida' },
+    { id: 'o2', descripcion: 'Cerveza', monto: 3000, categoria: 'Bebida' },
+    { id: 'o3', descripcion: 'Pizza', monto: 12000, categoria: 'Comida' },
+    { id: 'o4', descripcion: 'Bebida', monto: 2500, categoria: 'Bebida' },
+  ]
+
+  return { grupoId, items }
+}
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\auth.ts
+=======================
+import { defineStore } from 'pinia'
+import { ref, onMounted } from 'vue'
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  type User
+} from 'firebase/auth'
+import { auth } from '@/lib/firebase'
+
+export const useAuthStore = defineStore('auth', () => {
+  const user = ref<User | null>(null)
+  const loading = ref(true)
+
+  onMounted(() => {
+    onAuthStateChanged(auth, (u) => {
+      user.value = u
+      loading.value = false
+    })
+  })
+
+  async function signIn(email: string, password: string) {
+    await signInWithEmailAndPassword(auth, email, password)
+  }
+
+  async function signUp(email: string, password: string) {
+    await createUserWithEmailAndPassword(auth, email, password)
+  }
+
+  async function signOutApp() {
+    await signOut(auth)
+  }
+
+  return { user, loading, signIn, signUp, signOutApp }
+})
 
 
 =======================
@@ -1076,11 +1293,115 @@ const groupId = computed(() => String(route.params.id ?? 'grp_demo'))
 
 
 =======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\JoinGroupView.vue
+=======================
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { joinGroup } from '@/services/db'
+import AppCard from '@/components/AppCard.vue'
+import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+
+const route = useRoute()
+const router = useRouter()
+const auth = useAuthStore()
+const toast = useToast()
+
+const groupId = computed(() => String(route.params.id))
+
+async function doJoin() {
+    if (!auth.user) return router.push({ name: 'login', query: { redirect: route.fullPath } })
+    try {
+        await joinGroup(groupId.value, auth.user.uid)
+        toast.add({ severity: 'success', summary: 'Te uniste al grupo', life: 2000 })
+        router.replace({ name: 'grupo', params: { id: groupId.value } })
+    } catch (e: any) {
+        toast.add({ severity: 'error', summary: 'Error al unirse', detail: e?.message ?? String(e), life: 3000 })
+    }
+}
+</script>
+
+<template>
+    <div class="max-w-lg mx-auto">
+        <AppCard :title="`Unirse al grupo ${groupId}`" subtitle="Necesitas pertenecer para ver la boleta">
+            <div class="space-y-3">
+                <p class="text-sm text-[var(--text-muted)]">
+                    Presiona el botón para unirte a este grupo con tu cuenta actual.
+                </p>
+                <Button label="Unirme al grupo" icon="pi pi-user-plus" class="w-full" @click="doJoin" />
+            </div>
+        </AppCard>
+    </div>
+</template>
+
+
+=======================
+📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\LoginView.vue
+=======================
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import AppCard from '@/components/AppCard.vue'
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Button from 'primevue/button'
+import { useToast } from 'primevue/usetoast'
+
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+const toast = useToast()
+
+const email = ref('')
+const password = ref('')
+const isSignUp = ref(false)
+
+async function submit() {
+    try {
+        if (isSignUp.value) {
+            await auth.signUp(email.value, password.value)
+        } else {
+            await auth.signIn(email.value, password.value)
+        }
+        const redirect = (route.query.redirect as string) ?? '/'
+        router.replace(redirect)
+    } catch (e: any) {
+        toast.add({ severity: 'error', summary: 'Auth error', detail: e?.message ?? String(e), life: 3000 })
+    }
+}
+</script>
+
+<template>
+    <div class="max-w-md mx-auto">
+        <AppCard :title="isSignUp ? 'Crear cuenta' : 'Iniciar sesión'">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs block mb-1">Correo</label>
+                    <InputText v-model="email" class="w-full" />
+                </div>
+                <div>
+                    <label class="text-xs block mb-1">Contraseña</label>
+                    <Password v-model="password" class="w-full" :feedback="false" toggleMask />
+                </div>
+                <Button :label="isSignUp ? 'Registrarme' : 'Entrar'" class="w-full" @click="submit" />
+                <Button :label="isSignUp ? 'Tengo cuenta, iniciar sesión' : 'Crear cuenta nueva'" text class="w-full"
+                    @click="isSignUp = !isSignUp" />
+            </div>
+        </AppCard>
+    </div>
+</template>
+
+
+=======================
 📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\UploadView.vue
 =======================
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useToast } from 'primevue/usetoast'
+
 
 import AppCard from '@/components/AppCard.vue'
 
@@ -1137,7 +1458,7 @@ function clearAll() {
 }
 
 function removeRow(id: string) {
-  rows.value = rows.value.filter(r => r.id !== id)
+  rows.value = rows.value.filter((r: OcrItem) => r.id !== id)
 }
 
 </script>

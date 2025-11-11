@@ -11,18 +11,22 @@ export type MockReceiptItem = {
   price: number
   qty: number
   assignedUserIds?: string[] // multi-asignación para dividir
+
 }
 
 export type MockReceipt = {
   id: string
   titulo: string
   items: MockReceiptItem[]
+    imageUrl?: string 
 }
 
 export type MockGroup = {
   id: string
   nombre: string
-  miembros: string[] // ids de usuarios
+  ownerId?: string        // si prefieres mantener compatibilidad
+  ownerUid?: string       // <- usa este en el front
+  miembros: string[]
   receiptId: string
 }
 
@@ -38,6 +42,7 @@ const RECEIPTS: MockReceipt[] = [
   {
     id: 'r_demo',
     titulo: 'Pub Viernes · 2025-11-01',
+    imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=1200',
     items: [
       { id: 'i1', name: 'Papas fritas', price: 6000, qty: 1, assignedUserIds: ['u1', 'u2'] },
       { id: 'i2', name: 'Cerveza',      price: 3000, qty: 2, assignedUserIds: ['u3'] },
@@ -51,6 +56,7 @@ const GROUPS: MockGroup[] = [
   {
     id: 'grp_demo',
     nombre: 'Viernes en el Pub',
+    ownerUid: 'u1',            // <-- dueño explícito
     miembros: ['u1', 'u2', 'u3'],
     receiptId: 'r_demo'
   }

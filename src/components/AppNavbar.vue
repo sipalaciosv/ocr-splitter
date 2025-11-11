@@ -4,9 +4,14 @@ import Button from 'primevue/button'
 import Avatar from 'primevue/avatar'
 import { useUiStore } from '@/stores/ui'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 
 const ui = useUiStore()
 const router = useRouter()
+
+const auth = useAuthStore()
+const { user } = storeToRefs(auth) // reactividad segura
 
 function goHome() {
     router.push({ path: '/' })
@@ -14,7 +19,8 @@ function goHome() {
 </script>
 
 <template>
-<header data-app-navbar class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
+    <header data-app-navbar
+        class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
         <Toolbar class="max-w-6xl mx-auto px-3 sm:px-4">
             <template #start>
                 <div class="flex items-center gap-2 sm:gap-3">
@@ -37,12 +43,16 @@ function goHome() {
             </template>
 
             <template #end>
-                <div class="flex items-center gap-1 sm:gap-2">
-                    <!-- Modo oscuro -->
+                <div class="flex items-center gap-2">
                     <Button :label="ui.dark ? 'Claro' : 'Oscuro'" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'" text
-                        @click="ui.toggleDark()" aria-label="Alternar tema" />
-                    <!-- Acción secundaria / perfil -->
-                    <Button icon="pi pi-user" text aria-label="Perfil" />
+                        @click="ui.toggleDark()" />
+                    <template v-if="user">
+                        <span class="text-sm opacity-80 mr-2">{{ user?.email }}</span>
+                        <Button icon="pi pi-sign-out" text @click="auth.signOutApp()" />
+                    </template>
+                    <template v-else>
+                        <Button label="Entrar" text @click="router.push('/login')" />
+                    </template>
                 </div>
             </template>
         </Toolbar>

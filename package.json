@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@primevue/themes": "^4.4.1",
+    "firebase": "^12.5.0",
     "pinia": "^3.0.3",
     "primeicons": "^7.0.0",
     "primevue": "^4.4.1",

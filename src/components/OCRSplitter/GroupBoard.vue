@@ -7,7 +7,10 @@ import MultiSelect from 'primevue/multiselect'
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
+import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
+import { useAuthStore } from '@/stores/auth'
+import { listMembers } from '@/services/db'
 
 import {
     mockGetGroupById,
@@ -19,17 +22,26 @@ import {
     type MockReceiptItem
 } from '@/services/mocks'
 
-type Props = {
-    groupId: string
-}
+type Props = { groupId: string }
 const props = defineProps<Props>()
 
 const toast = useToast()
+const auth = useAuthStore()
+
 const loading = ref(true)
 const group = ref<MockGroup | null>(null)
 const users = ref<MockUser[]>([])
 const receipt = ref<MockReceipt | null>(null)
-const items = ref<MockReceiptItem[]>([]) // editable en memoria
+const items = ref<MockReceiptItem[]>([]) // working copy en memoria
+
+// miembros reales (Firestore)
+const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
+
+const currentUserId = computed(() => auth.user?.uid ?? '')
+const isAdmin = computed(() => group.value?.ownerUid === currentUserId.value)
+
+// ver boleta
+const showReceipt = ref(false)
 
 const currency = (n: number) =>
     n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
@@ -37,18 +49,44 @@ const currency = (n: number) =>
 onMounted(async () => {
     try {
         loading.value = true
+
+        // 1) Grupo mock (hasta integrar backend real)
         const g = await mockGetGroupById(props.groupId)
         if (!g) {
             toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
-            loading.value = false
             return
         }
         group.value = g
-        users.value = await mockListUsersByIds(g.miembros)
+
+        // 2) Miembros desde Firestore (si existen)
+        try {
+            const rows = await listMembers(props.groupId)
+            members.value = rows.map(r => ({
+                uid: r.uid,
+                role: r.role,
+                name: r.displayName || r.email || r.uid
+            }))
+        } catch {
+            members.value = []
+        }
+
+        // Users que alimentan el MultiSelect / chips
+        if (members.value.length > 0) {
+            users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
+        } else {
+            // fallback demo
+            users.value = await mockListUsersByIds(g.miembros)
+        }
+
+        // 3) Receipt mock
         const r = await mockGetReceiptById(g.receiptId)
         receipt.value = r
-        // clonar a “working copy”
-        items.value = r.items.map(i => ({ ...i, assignedUserIds: [...(i.assignedUserIds ?? [])] }))
+
+        // working copy de items
+        items.value = r.items.map(i => ({
+            ...i,
+            assignedUserIds: [...(i.assignedUserIds ?? [])]
+        }))
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Error cargando grupo', detail: String(e), life: 4500 })
     } finally {
@@ -74,9 +112,7 @@ const totalsByUser = computed(() => {
     return acc
 })
 
-const totalGeneral = computed(() =>
-    items.value.reduce((s, it) => s + itemSubtotal(it), 0)
-)
+const totalGeneral = computed(() => items.value.reduce((s, it) => s + itemSubtotal(it), 0))
 
 const totalAsignado = computed(() => {
     let s = 0
@@ -89,19 +125,30 @@ const totalAsignado = computed(() => {
 
 /** UI Helpers */
 const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? id
-const displayAssigned = (it: MockReceiptItem) => (it.assignedUserIds?.map(userLabel) ?? []).join(', ')
-const clearAssignments = () => {
+
+function clearAssignments() {
+    if (!isAdmin.value) return
     items.value = items.value.map(i => ({ ...i, assignedUserIds: [] }))
     toast.add({ severity: 'info', summary: 'Asignaciones reiniciadas', life: 2500 })
 }
-const fillMyself = (uid: string) => {
+
+function fillMyself(uid: string) {
+    // solo admin (para no pisar a otros)
+    if (!isAdmin.value) return
     items.value = items.value.map(i => ({ ...i, assignedUserIds: [uid] }))
     toast.add({ severity: 'success', summary: 'Te asignaste todos los ítems', life: 2500 })
 }
-// URL actual para compartir/copiar
-const currentUrl = computed(() =>
-    typeof window !== 'undefined' ? window.location.href : ''
-)
+
+// Solo auto-asignación para miembros (no admin)
+function toggleSelf(it: MockReceiptItem, want: boolean) {
+    const set = new Set(it.assignedUserIds ?? [])
+    if (want) set.add(currentUserId.value)
+    else set.delete(currentUserId.value)
+    it.assignedUserIds = Array.from(set)
+}
+
+// Link compartir
+const currentUrl = computed(() => (typeof window !== 'undefined' ? window.location.href : ''))
 
 function copyLink() {
     const url = currentUrl.value
@@ -115,20 +162,17 @@ function copyLink() {
 async function shareLink() {
     const url = currentUrl.value
     if (!url || typeof navigator === 'undefined') return
-
     if (typeof navigator.share === 'function') {
         try {
-
             await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
         } catch {
-            /* usuario canceló */
+            /* cancelado por el usuario */
         }
     } else if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(url)
         toast.add({ severity: 'info', summary: 'Compartir no disponible; link copiado', life: 2500 })
     }
 }
-
 </script>
 
 <template>
@@ -141,15 +185,17 @@ async function shareLink() {
                             {{ group?.nombre ?? 'Grupo' }}
                         </div>
                         <div class="text-xs opacity-70">
-                            Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta: {{
-                                currency(totalGeneral) }}
+                            Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta:
+                            {{ currency(totalGeneral) }}
                         </div>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                        <Button :disabled="loading" label="Reiniciar asignaciones" @click="clearAssignments" />
-                        <!-- Ejemplo de acción rápida: asignarme todo (cambiar uid por el real cuando haya auth) -->
-                        <Button :disabled="loading" label="Asignarme todo" severity="secondary"
+                        <Button label="Ver boleta" icon="pi pi-image" severity="secondary"
+                            @click="showReceipt = true" />
+                        <Button :disabled="loading || !isAdmin" label="Reiniciar asignaciones"
+                            @click="clearAssignments" />
+                        <Button :disabled="loading || !isAdmin" label="Asignarme todo" severity="secondary"
                             @click="fillMyself(group?.miembros[0] ?? '')" />
                     </div>
                 </div>
@@ -162,7 +208,7 @@ async function shareLink() {
                         class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
                         <div class="p-4 flex items-center justify-between">
                             <div class="font-medium">Ítems de la boleta</div>
-                            <div class="text-sm opacity-70">Divide seleccionando uno o más miembros</div>
+                            <div class="text-sm opacity-70">Divide seleccionando miembros</div>
                         </div>
 
                         <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="min-width: 100%"
@@ -190,13 +236,33 @@ async function shareLink() {
 
                             <Column header="Asignado a" style="width: 26%">
                                 <template #body="{ data }">
-                                    <MultiSelect v-model="data.assignedUserIds" :options="users" optionLabel="nombre"
-                                        optionValue="id" display="chip" class="w-full"
-                                        placeholder="Selecciona personas..." />
-                                    <div class="mt-1 flex flex-wrap gap-1"
-                                        v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                                        <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
-                                    </div>
+                                    <!-- Admin: edición completa -->
+                                    <template v-if="isAdmin">
+                                        <MultiSelect v-model="data.assignedUserIds" :options="users"
+                                            optionLabel="nombre" optionValue="id" display="chip" class="w-full"
+                                            placeholder="Selecciona personas..." />
+                                        <div class="mt-1 flex flex-wrap gap-1"
+                                            v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                                            <Tag v-for="uid in data.assignedUserIds" :key="uid"
+                                                :value="userLabel(uid)" />
+                                        </div>
+                                    </template>
+
+                                    <!-- Miembro: solo auto-asignación -->
+                                    <template v-else>
+                                        <div class="flex flex-wrap gap-1 mb-2"
+                                            v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                                            <Tag v-for="uid in data.assignedUserIds" :key="uid"
+                                                :value="userLabel(uid)" />
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <Button label="Yo lo tomo" size="small" @click="toggleSelf(data, true)"
+                                                :disabled="(data.assignedUserIds ?? []).includes(currentUserId)" />
+                                            <Button label="Quitarme" size="small" severity="secondary"
+                                                @click="toggleSelf(data, false)"
+                                                :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)" />
+                                        </div>
+                                    </template>
                                 </template>
                             </Column>
                         </DataTable>
@@ -248,6 +314,15 @@ async function shareLink() {
                     </div>
                 </div>
             </div>
+
+            <!-- Dialog: Boleta -->
+            <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
+                <div class="w-full">
+                    <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
+                        class="w-full h-auto rounded-xl border border-[var(--border)]" />
+                    <div v-else class="text-sm text-[var(--text-muted)]">Sin imagen (demo)</div>
+                </div>
+            </Dialog>
         </AppCard>
     </div>
 </template>

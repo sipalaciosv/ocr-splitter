@@ -1,6 +1,7 @@
 import {
-  collection, doc, getDoc, setDoc, serverTimestamp,
-  getDocs,
+  collection, doc, getDoc, setDoc, serverTimestamp, onSnapshot, updateDoc, arrayUnion, arrayRemove,
+  getDocs
+ 
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -9,7 +10,12 @@ export type GroupDoc = {
   ownerUid: string
   createdAt: any
 }
-
+export type ItemDoc = {
+  name: string
+  price: number
+  qty: number
+  assignedUserIds: string[]
+}
 export type MemberDoc = {
   role: 'admin' | 'member'
   joinedAt: any
@@ -72,4 +78,48 @@ export async function isMember(groupId: string, uid: string) {
 export async function isAdmin(groupId: string, uid: string) {
   const m = await getDoc(doc(db, 'groups', groupId, 'members', uid))
   return m.exists() && m.data()?.role === 'admin'
+}
+// Suscripción en tiempo real a items del grupo
+export function subscribeItems(groupId: string, cb: (items: (ItemDoc & { id: string })[]) => void) {
+  const colRef = collection(db, 'groups', groupId, 'items')
+  const off = onSnapshot(colRef, (snap) => {
+    const rows = snap.docs.map(d => ({ id: d.id, ...(d.data() as ItemDoc) }))
+    cb(rows)
+  })
+  return off
+}
+// (opcional) sembrar items desde una lista (útil la primera vez)
+export async function seedItems(groupId: string, items: (ItemDoc & { id: string })[]) {
+  for (const it of items) {
+    await setDoc(doc(db, 'groups', groupId, 'items', it.id), {
+      name: it.name, price: it.price, qty: it.qty,
+      assignedUserIds: it.assignedUserIds ?? []
+    })
+  }
+}
+// Admin: setear lista completa de asignados
+export async function setItemAssignments(groupId: string, itemId: string, assignedUserIds: string[]) {
+  await updateDoc(doc(db, 'groups', groupId, 'items', itemId), { assignedUserIds })
+}
+
+// Miembro: tomar/quitarse del ítem
+export async function claimItem(groupId: string, itemId: string, uid: string) {
+  try {
+    await updateDoc(doc(db, 'groups', groupId, 'items', itemId), {
+      assignedUserIds: arrayUnion(uid)
+    })
+  } catch (e: any) {
+    console.error('claimItem failed', { groupId, itemId, uid, code: e?.code, msg: e?.message })
+    throw e
+  }
+}
+export async function unclaimItem(groupId: string, itemId: string, uid: string) {
+  try {
+    await updateDoc(doc(db, 'groups', groupId, 'items', itemId), {
+      assignedUserIds: arrayRemove(uid)
+    })
+  } catch (e: any) {
+    console.error('unclaimItem failed', { groupId, itemId, uid, code: e?.code, msg: e?.message })
+    throw e
+  }
 }

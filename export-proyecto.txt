@@ -1,6 +1,6 @@
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.editorconfig
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\.editorconfig
 =======================
 [*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,vue,css,scss,sass,less,styl}]
 charset = utf-8
@@ -13,7 +13,7 @@ max_line_length = 100
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.env.local
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\.env.local
 =======================
 VITE_FB_API_KEY=AIzaSyDe1DXXFuwCjotQYD1nM7GgrQ6ATXxogDc
 VITE_FB_AUTH_DOMAIN=ocr-splitter.firebaseapp.com
@@ -22,15 +22,14 @@ VITE_FB_STORAGE_BUCKET=ocr-splitter.appspot.com
 VITE_FB_APP_ID=1:1009547068025:web:b05600504b1d84b23bcaa8
 VITE_FB_MESSAGING_SENDER_ID=1009547068025
 
-
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitattributes
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\.gitattributes
 =======================
 * text=auto eol=lf
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.gitignore
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\.gitignore
 =======================
 # Logs
 logs
@@ -71,7 +70,7 @@ __screenshots__/
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\.prettierrc.json
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\.prettierrc.json
 =======================
 {
   "$schema": "https://json.schemastore.org/prettierrc",
@@ -82,7 +81,7 @@ __screenshots__/
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\env.d.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\env.d.ts
 =======================
 /// <reference types="vite/client" />
 declare module '*.vue' {
@@ -93,7 +92,7 @@ declare module '*.vue' {
 }
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\eslint.config.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\eslint.config.ts
 =======================
 import { globalIgnores } from 'eslint/config'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
@@ -120,7 +119,7 @@ export default defineConfigWithVueTs(
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\exp.js
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\exp.js
 =======================
 // exportarProyecto.js
 
@@ -200,7 +199,7 @@ fs.writeFileSync("export-proyecto.txt", resultado.join("\n"), "utf8");
 console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin contenido).");
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\index.html
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\index.html
 =======================
 <!DOCTYPE html>
 <html lang="">
@@ -218,8 +217,10 @@ console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin conten
   </body>
 </html>
 
-====================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\package.json
+
+
+=======================
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\package.json
 =======================
 {
   "name": "ocr-splitter",
@@ -273,7 +274,7 @@ console.log("✅ Proyecto exportado en export-proyecto.txt (imágenes sin conten
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\postcss.config.cjs
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\postcss.config.cjs
 =======================
 module.exports = {
   plugins: {
@@ -283,11 +284,11 @@ module.exports = {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\public\favicon.ico
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\public\favicon.ico
 =======================
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\README.md
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\README.md
 =======================
 # ocr-splitter
 
@@ -340,7 +341,7 @@ npm run lint
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\App.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\App.vue
 =======================
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
@@ -355,7 +356,7 @@ import LayoutDefault from '@/layouts/LayoutDefault.vue'
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\assets\main.css
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\assets\main.css
 =======================
 /* Fuente global */
 html, body, #app {
@@ -371,7 +372,7 @@ html, body, #app {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppCard.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\components\AppCard.vue
 =======================
 <script setup lang="ts">
 import Card from 'primevue/card'
@@ -439,7 +440,7 @@ defineProps<{
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppFooter.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\components\AppFooter.vue
 =======================
 <script setup lang="ts">
 const year = new Date().getFullYear()
@@ -464,7 +465,7 @@ const year = new Date().getFullYear()
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\AppNavbar.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\components\AppNavbar.vue
 =======================
 <script setup lang="ts">
 import Toolbar from 'primevue/toolbar'
@@ -529,10 +530,10 @@ function goHome() {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\components\OCRSplitter\GroupBoard.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\components\OCRSplitter\GroupBoard.vue
 =======================
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import AppCard from '@/components/AppCard.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -540,58 +541,132 @@ import MultiSelect from 'primevue/multiselect'
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
+import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 
+// Firestore helpers
 import {
-    mockGetGroupById,
-    mockGetReceiptById,
-    mockListUsersByIds,
-    type MockGroup,
-    type MockUser,
-    type MockReceipt,
-    type MockReceiptItem
+  listMembers,
+  subscribeItems,
+  seedItems,
+  setItemAssignments,
+  claimItem,
+  unclaimItem,
+} from '@/services/db'
+
+// Mock “metadata” del grupo/boleta (mientras no guardemos todo en Firestore)
+import {
+  mockGetGroupById,
+  mockGetReceiptById,
+  mockListUsersByIds,
+  type MockGroup,
+  type MockUser,
+  type MockReceipt,
+  type MockReceiptItem,
 } from '@/services/mocks'
 
-type Props = {
-    groupId: string
-}
+type Props = { groupId: string }
 const props = defineProps<Props>()
-const auth = useAuthStore()
-const currentUserId = computed(() => auth.user?.uid ?? '')
-const editMode = ref(false)
 
-const isAdmin = computed(() => group.value?.ownerUid === currentUserId.value)
 const toast = useToast()
+const auth = useAuthStore()
+
 const loading = ref(true)
 const group = ref<MockGroup | null>(null)
-const users = ref<MockUser[]>([])
+const users = ref<MockUser[]>([])                 // fuente para MultiSelect / chips
 const receipt = ref<MockReceipt | null>(null)
-const items = ref<MockReceiptItem[]>([]) // editable en memoria
+const items = ref<MockReceiptItem[]>([])          // SIEMPRE viene de Firestore (onSnapshot)
+
+// miembros reales (Firestore) — para mostrar nombres en vez de IDs
+const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
+
+const currentUserId = computed(() => auth.user?.uid ?? '')
+const isAdmin = computed(() => group.value?.ownerUid === currentUserId.value)
+
+// ver boleta
+const showReceipt = ref(false)
+
+// unsubscribe de items
+let offItems: (() => void) | null = null
 
 const currency = (n: number) =>
-    n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
+  n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
 
 onMounted(async () => {
-    try {
-        loading.value = true
-        const g = await mockGetGroupById(props.groupId)
-        if (!g) {
-            toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
-            loading.value = false
-            return
-        }
-        group.value = g
-        users.value = await mockListUsersByIds(g.miembros)
-        const r = await mockGetReceiptById(g.receiptId)
-        receipt.value = r
-        // clonar a “working copy”
-        items.value = r.items.map(i => ({ ...i, assignedUserIds: [...(i.assignedUserIds ?? [])] }))
-    } catch (e) {
-        toast.add({ severity: 'error', summary: 'Error cargando grupo', detail: String(e), life: 4500 })
-    } finally {
-        loading.value = false
+  try {
+    loading.value = true
+
+    // 1) Grupo mock (para título/owner mientras no guardemos todo en Firestore)
+    const g = await mockGetGroupById(props.groupId)
+    if (!g) {
+      toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
+      return
     }
+    group.value = g
+
+    // 2) Miembros reales desde Firestore
+    try {
+      const rows = await listMembers(props.groupId)
+      members.value = rows.map(r => ({
+        uid: r.uid,
+        role: r.role,
+        name: r.displayName || r.email || r.uid,
+      }))
+    } catch {
+      members.value = []
+    }
+
+    // Fuente del MultiSelect/chips: prefiero los miembros de Firestore; si no hay, fallback mock
+    if (members.value.length > 0) {
+      users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
+    } else {
+      users.value = await mockListUsersByIds(g.miembros)
+    }
+
+    // 3) Metadata de boleta (mock por ahora, para título/imagen)
+    const r = await mockGetReceiptById(g.receiptId)
+    receipt.value = r
+
+    // 4) Suscripción tiempo real a items de Firestore
+    offItems = subscribeItems(props.groupId, (rows) => {
+      // Adaptamos al shape que usa la tabla
+      items.value = rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        price: r.price,
+        qty: r.qty,
+        assignedUserIds: [...(r.assignedUserIds ?? [])],
+      }))
+    })
+
+    // 5) Si aún no hay items en Firestore, sembramos desde el mock (solo 1ª vez)
+    //    Espero un poco por si el snapshot inicial ya trae datos.
+    setTimeout(async () => {
+      if (isAdmin.value && (items.value?.length ?? 0) === 0 && receipt.value?.items?.length) {
+        try {
+          await seedItems(props.groupId, receipt.value.items.map(i => ({
+            id: i.id,
+            name: i.name,
+            price: i.price,
+            qty: i.qty,
+            assignedUserIds: i.assignedUserIds ?? [],
+          })))
+        } catch (e: any) {
+          // si no hay permisos/ya existe, ignoro
+          console.warn('seedItems:', e?.message ?? e)
+        }
+      }
+    }, 300)
+  } catch (e) {
+    toast.add({ severity: 'error', summary: 'Error cargando grupo', detail: String(e), life: 4500 })
+  } finally {
+    loading.value = false
+  }
+})
+
+onBeforeUnmount(() => {
+  offItems?.()
 })
 
 /** Subtotales por ítem */
@@ -599,200 +674,276 @@ const itemSubtotal = (it: MockReceiptItem) => it.price * it.qty
 
 /** Totales por persona = sum(itemSubtotal / #asignados) */
 const totalsByUser = computed(() => {
-    const acc: Record<string, number> = {}
-    users.value.forEach(u => (acc[u.id] = 0))
-    for (const it of items.value) {
-        const assigned = it.assignedUserIds ?? []
-        if (!assigned.length) continue
-        const share = itemSubtotal(it) / assigned.length
-        for (const uid of assigned) {
-            acc[uid] = (acc[uid] ?? 0) + share
-        }
+  const acc: Record<string, number> = {}
+  users.value.forEach(u => (acc[u.id] = 0))
+  for (const it of items.value) {
+    const assigned = it.assignedUserIds ?? []
+    if (!assigned.length) continue
+    const share = itemSubtotal(it) / assigned.length
+    for (const uid of assigned) {
+      acc[uid] = (acc[uid] ?? 0) + share
     }
-    return acc
+  }
+  return acc
 })
 
-const totalGeneral = computed(() =>
-    items.value.reduce((s, it) => s + itemSubtotal(it), 0)
-)
+const totalGeneral = computed(() => items.value.reduce((s, it) => s + itemSubtotal(it), 0))
 
 const totalAsignado = computed(() => {
-    let s = 0
-    for (const it of items.value) {
-        const c = it.assignedUserIds?.length ?? 0
-        if (c > 0) s += itemSubtotal(it)
-    }
-    return s
+  let s = 0
+  for (const it of items.value) {
+    const c = it.assignedUserIds?.length ?? 0
+    if (c > 0) s += itemSubtotal(it)
+  }
+  return s
 })
 
 /** UI Helpers */
 const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? id
-const displayAssigned = (it: MockReceiptItem) => (it.assignedUserIds?.map(userLabel) ?? []).join(', ')
-const clearAssignments = () => {
-    items.value = items.value.map(i => ({ ...i, assignedUserIds: [] }))
+
+// ==== Acciones ADMIN (persisten en Firestore) ====
+async function onAdminAssignChange(it: MockReceiptItem, newList: string[]) {
+  try {
+    await setItemAssignments(props.groupId, it.id, newList)
+  } catch (e: any) {
+    toast.add({ severity: 'error', summary: 'No se pudo actualizar', detail: e?.message ?? String(e), life: 2500 })
+  }
+}
+
+async function clearAssignments() {
+  if (!isAdmin.value) return
+  try {
+    await Promise.all(items.value.map(it => setItemAssignments(props.groupId, it.id, [])))
     toast.add({ severity: 'info', summary: 'Asignaciones reiniciadas', life: 2500 })
+  } catch (e: any) {
+    toast.add({ severity: 'error', summary: 'Error al reiniciar', detail: e?.message ?? String(e), life: 2500 })
+  }
 }
-const fillMyself = (uid: string) => {
-    items.value = items.value.map(i => ({ ...i, assignedUserIds: [uid] }))
+
+async function fillMyself(uid: string) {
+  if (!isAdmin.value || !uid) return
+  try {
+    await Promise.all(items.value.map(it => setItemAssignments(props.groupId, it.id, [uid])))
     toast.add({ severity: 'success', summary: 'Te asignaste todos los ítems', life: 2500 })
+  } catch (e: any) {
+    toast.add({ severity: 'error', summary: 'Error al asignar', detail: e?.message ?? String(e), life: 2500 })
+  }
 }
-// URL actual para compartir/copiar
-const currentUrl = computed(() =>
-    typeof window !== 'undefined' ? window.location.href : ''
-)
+
+// ==== Acciones MIEMBRO (solo auto-asignarse/quitarse) ====
+async function toggleSelf(it: MockReceiptItem, want: boolean) {
+  if (!currentUserId.value) return
+  try {
+    if (want) await claimItem(props.groupId, it.id, currentUserId.value)
+    else await unclaimItem(props.groupId, it.id, currentUserId.value)
+  } catch (e: any) {
+    toast.add({ severity: 'error', summary: 'No se pudo actualizar', detail: e?.message ?? String(e), life: 2500 })
+  }
+}
+
+// Link compartir
+const currentUrl = computed(() => (typeof window !== 'undefined' ? window.location.href : ''))
 
 function copyLink() {
-    const url = currentUrl.value
-    if (!url) return
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(url)
-        toast.add({ severity: 'success', summary: 'Link copiado', life: 2000 })
-    }
+  const url = currentUrl.value
+  if (!url) return
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(url)
+    toast.add({ severity: 'success', summary: 'Link copiado', life: 2000 })
+  }
 }
 
 async function shareLink() {
-    const url = currentUrl.value
-    if (!url || typeof navigator === 'undefined') return
-
-    if (typeof navigator.share === 'function') {
-        try {
-
-            await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
-        } catch {
-            /* usuario canceló */
-        }
-    } else if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(url)
-        toast.add({ severity: 'info', summary: 'Compartir no disponible; link copiado', life: 2500 })
+  const url = currentUrl.value
+  if (!url || typeof navigator === 'undefined') return
+  if (typeof navigator.share === 'function') {
+    try {
+      await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
+    } catch {
+      /* cancelado por el usuario */
     }
+  } else if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(url)
+    toast.add({ severity: 'info', summary: 'Compartir no disponible; link copiado', life: 2500 })
+  }
 }
-
 </script>
 
 <template>
-    <div class="max-w-6xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-10 pb-8">
-        <AppCard>
-            <template #header>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="min-w-0">
-                        <div class="font-semibold text-lg leading-tight">
-                            {{ group?.nombre ?? 'Grupo' }}
-                        </div>
-                        <div class="text-xs opacity-70">
-                            Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta: {{
-                                currency(totalGeneral) }}
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                        <Button :disabled="loading" label="Reiniciar asignaciones" @click="clearAssignments" />
-                        <!-- Ejemplo de acción rápida: asignarme todo (cambiar uid por el real cuando haya auth) -->
-                        <Button :disabled="loading" label="Asignarme todo" severity="secondary"
-                            @click="fillMyself(group?.miembros[0] ?? '')" />
-                    </div>
-                </div>
-            </template>
-
-            <div class="grid gap-4 lg:grid-cols-12">
-                <!-- IZQUIERDA: Tabla de ítems -->
-                <div class="lg:col-span-8">
-                    <div
-                        class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
-                        <div class="p-4 flex items-center justify-between">
-                            <div class="font-medium">Ítems de la boleta</div>
-                            <div class="text-sm opacity-70">Divide seleccionando uno o más miembros</div>
-                        </div>
-
-                        <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="min-width: 100%"
-                            class="text-sm" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
-                            <Column field="name" header="Producto" sortable style="width: 32%">
-                                <template #body="{ data }">
-                                    <div class="font-medium">{{ data.name }}</div>
-                                    <div class="text-xs opacity-70" v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                                        Compartido entre {{ data.assignedUserIds.length }}
-                                    </div>
-                                </template>
-                            </Column>
-
-                            <Column field="price" header="Precio" sortable style="width: 14%">
-                                <template #body="{ data }">{{ currency(data.price) }}</template>
-                            </Column>
-
-                            <Column field="qty" header="Cant." sortable style="width: 10%" />
-
-                            <Column header="Subtotal" sortable style="width: 18%">
-                                <template #body="{ data }">
-                                    {{ currency(data.price * data.qty) }}
-                                </template>
-                            </Column>
-
-                            <Column header="Asignado a" style="width: 26%">
-                                <template #body="{ data }">
-                                    <MultiSelect v-model="data.assignedUserIds" :options="users" optionLabel="nombre"
-                                        optionValue="id" display="chip" class="w-full"
-                                        placeholder="Selecciona personas..." />
-                                    <div class="mt-1 flex flex-wrap gap-1"
-                                        v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                                        <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
-                                    </div>
-                                </template>
-                            </Column>
-                        </DataTable>
-                    </div>
-                </div>
-
-                <!-- DERECHA: Totales -->
-                <div class="lg:col-span-4">
-                    <div
-                        class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
-                        <div class="p-4">
-                            <div class="font-medium">Resumen</div>
-                            <div class="text-xs opacity-70">Se reparte proporcionalmente por ítem</div>
-
-                            <Divider class="my-3" />
-
-                            <div class="flex justify-between text-sm mb-1">
-                                <span>Total boleta</span>
-                                <span class="font-medium">{{ currency(totalGeneral) }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm mb-4">
-                                <span>Ítems asignados</span>
-                                <span class="font-medium">{{ currency(totalAsignado) }}</span>
-                            </div>
-
-                            <div class="text-xs opacity-70 mb-2">Totales por persona</div>
-                            <div class="space-y-2">
-                                <div v-for="u in users" :key="u.id" class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <div
-                                            class="h-6 w-6 rounded-full bg-[var(--surface-3)] grid place-items-center text-xs">
-                                            {{ u.nombre.charAt(0).toUpperCase() }}
-                                        </div>
-                                        <span class="text-sm">{{ u.nombre }}</span>
-                                    </div>
-                                    <div class="font-semibold">{{ currency(totalsByUser[u.id] ?? 0) }}</div>
-                                </div>
-                            </div>
-
-                            <Divider class="my-3" />
-
-                            <div class="flex gap-2">
-                                <Button label="Copiar link del grupo" icon="pi pi-link" class="w-full"
-                                    @click="copyLink" />
-                                <Button label="Compartir" icon="pi pi-share-alt" severity="secondary" class="w-full"
-                                    @click="shareLink" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-10 pb-8">
+    <AppCard>
+      <template #header>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div class="min-w-0">
+            <div class="font-semibold text-lg leading-tight">
+              {{ group?.nombre ?? 'Grupo' }}
             </div>
-        </AppCard>
-    </div>
+            <div class="text-xs opacity-70">
+              Boleta: {{ receipt?.titulo ?? '—' }} · Ítems: {{ items.length }} · Total boleta:
+              {{ currency(totalGeneral) }}
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <Button label="Ver boleta" icon="pi pi-image" severity="secondary" @click="showReceipt = true" />
+            <Button :disabled="loading || !isAdmin" label="Reiniciar asignaciones" @click="clearAssignments" />
+            <Button
+              :disabled="loading || !isAdmin"
+              label="Asignarme todo"
+              severity="secondary"
+              @click="fillMyself(group?.miembros[0] ?? currentUserId)"
+            />
+          </div>
+        </div>
+      </template>
+
+      <div class="grid gap-4 lg:grid-cols-12">
+        <!-- IZQUIERDA: Tabla de ítems -->
+        <div class="lg:col-span-8">
+          <div class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
+            <div class="p-4 flex items-center justify-between">
+              <div class="font-medium">Ítems de la boleta</div>
+              <div class="text-sm opacity-70">Divide seleccionando miembros</div>
+            </div>
+
+            <DataTable
+              :value="items"
+              dataKey="id"
+              :loading="loading"
+              tableStyle="min-width: 100%"
+              class="text-sm"
+              :rows="10"
+              paginator
+              :rowsPerPageOptions="[10, 20, 50]"
+            >
+              <Column field="name" header="Producto" sortable style="width: 32%">
+                <template #body="{ data }">
+                  <div class="font-medium">{{ data.name }}</div>
+                  <div class="text-xs opacity-70" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                    Compartido entre {{ data.assignedUserIds.length }}
+                  </div>
+                </template>
+              </Column>
+
+              <Column field="price" header="Precio" sortable style="width: 14%">
+                <template #body="{ data }">{{ currency(data.price) }}</template>
+              </Column>
+
+              <Column field="qty" header="Cant." sortable style="width: 10%" />
+
+              <Column header="Subtotal" sortable style="width: 18%">
+                <template #body="{ data }">
+                  {{ currency(data.price * data.qty) }}
+                </template>
+              </Column>
+
+              <Column header="Asignado a" style="width: 26%">
+                <template #body="{ data }">
+                  <!-- Admin: edición completa (persistente) -->
+                  <template v-if="isAdmin">
+                    <MultiSelect
+                      :modelValue="data.assignedUserIds"
+                      @update:modelValue="(v) => onAdminAssignChange(data, v)"
+                      :options="users"
+                      optionLabel="nombre"
+                      optionValue="id"
+                      display="chip"
+                      class="w-full"
+                      placeholder="Selecciona personas..."
+                    />
+                    <div class="mt-1 flex flex-wrap gap-1" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                      <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
+                    </div>
+                  </template>
+
+                  <!-- Miembro: solo auto-asignarse / quitarse (persistente) -->
+                  <template v-else>
+                    <div class="flex flex-wrap gap-1 mb-2" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                      <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
+                    </div>
+                    <div class="flex gap-2">
+                      <Button
+                        label="Yo lo tomo"
+                        size="small"
+                        @click="toggleSelf(data, true)"
+                        :disabled="(data.assignedUserIds ?? []).includes(currentUserId)"
+                      />
+                      <Button
+                        label="Quitarme"
+                        size="small"
+                        severity="secondary"
+                        @click="toggleSelf(data, false)"
+                        :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)"
+                      />
+                    </div>
+                  </template>
+                </template>
+              </Column>
+            </DataTable>
+          </div>
+        </div>
+
+        <!-- DERECHA: Totales -->
+        <div class="lg:col-span-4">
+          <div class="rounded-2xl border border-[color:var(--ring)] bg-[var(--cardbg)] shadow-sm overflow-hidden">
+            <div class="p-4">
+              <div class="font-medium">Resumen</div>
+              <div class="text-xs opacity-70">Se reparte proporcionalmente por ítem</div>
+
+              <Divider class="my-3" />
+
+              <div class="flex justify-between text-sm mb-1">
+                <span>Total boleta</span>
+                <span class="font-medium">{{ currency(totalGeneral) }}</span>
+              </div>
+              <div class="flex justify-between text-sm mb-4">
+                <span>Ítems asignados</span>
+                <span class="font-medium">{{ currency(totalAsignado) }}</span>
+              </div>
+
+              <div class="text-xs opacity-70 mb-2">Totales por persona</div>
+              <div class="space-y-2">
+                <div v-for="u in users" :key="u.id" class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 rounded-full bg-[var(--surface-3)] grid place-items-center text-xs">
+                      {{ u.nombre.charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="text-sm">{{ u.nombre }}</span>
+                  </div>
+                  <div class="font-semibold">{{ currency(totalsByUser[u.id] ?? 0) }}</div>
+                </div>
+              </div>
+
+              <Divider class="my-3" />
+
+              <div class="flex gap-2">
+                <Button label="Copiar link del grupo" icon="pi pi-link" class="w-full" @click="copyLink" />
+                <Button label="Compartir" icon="pi pi-share-alt" severity="secondary" class="w-full" @click="shareLink" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dialog: Boleta -->
+      <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
+        <div class="w-full">
+          <img
+            v-if="receipt?.imageUrl"
+            :src="receipt.imageUrl"
+            alt="Boleta"
+            class="w-full h-auto rounded-xl border border-[var(--border)]"
+          />
+          <div v-else class="text-sm text-[var(--text-muted)]">Sin imagen (demo)</div>
+        </div>
+      </Dialog>
+    </AppCard>
+  </div>
 </template>
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\layouts\LayoutDefault.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\layouts\LayoutDefault.vue
 =======================
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
@@ -873,7 +1024,7 @@ onBeforeUnmount(() => {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\lib\firebase.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\lib\firebase.ts
 =======================
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
@@ -896,7 +1047,7 @@ export const storage = getStorage(app)
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\main.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\main.ts
 =======================
 import './styles/tailwind.css'
 import './styles/variables.css'
@@ -928,7 +1079,7 @@ app.mount('#app')
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\router\index.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\router\index.ts
 =======================
 import { createRouter, createWebHistory } from 'vue-router'
 import UploadView from '../views/UploadView.vue'
@@ -943,11 +1094,15 @@ const router = createRouter({
     { path: '/', name: 'upload', component: UploadView },
     { path: '/login', name: 'login', component: LoginView },
     { path: '/join/:id', name: 'join', component: JoinGroupView },
-    { path: '/grupo/:id',
+    {
+      path: '/grupo/:id',
       name: 'grupo',
       component: () => import('@/views/GroupView.vue'),
       beforeEnter: async (to) => {
         const auth = useAuthStore()
+        // 👇 asegura que Firebase resolvió el estado de sesión
+        await auth.waitForInit()
+
         const id = String(to.params.id)
         if (!auth.user) {
           return { name: 'login', query: { redirect: to.fullPath } }
@@ -964,10 +1119,12 @@ export default router
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\services\db.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\services\db.ts
 =======================
 import {
-  collection, doc, getDoc, setDoc, serverTimestamp,
+  collection, doc, getDoc, setDoc, serverTimestamp, onSnapshot, updateDoc, arrayUnion, arrayRemove,
+  getDocs
+ 
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -976,7 +1133,12 @@ export type GroupDoc = {
   ownerUid: string
   createdAt: any
 }
-
+export type ItemDoc = {
+  name: string
+  price: number
+  qty: number
+  assignedUserIds: string[]
+}
 export type MemberDoc = {
   role: 'admin' | 'member'
   joinedAt: any
@@ -999,11 +1161,37 @@ export async function createGroup(groupId: string, title: string, ownerUid: stri
 }
 
 // Agregar miembro como 'member'
-export async function joinGroup(groupId: string, uid: string) {
+export async function joinGroup(groupId: string, uid: string, profile?: { displayName?: string|null; email?: string|null; photoURL?: string|null }) {
   const mRef = doc(db, 'groups', groupId, 'members', uid)
-  await setDoc(mRef, { role: 'member', joinedAt: serverTimestamp() } as MemberDoc, { merge: true })
+  await setDoc(mRef, {
+    role: 'member',
+    joinedAt: serverTimestamp(),
+    displayName: profile?.displayName ?? null,
+    email: profile?.email ?? null,
+    photoURL: profile?.photoURL ?? null,
+  } as any, { merge: true })
+}
+export type MemberRow = {
+  uid: string
+  role: 'admin' | 'member'
+  displayName?: string | null
+  email?: string | null
+  photoURL?: string | null
 }
 
+export async function listMembers(groupId: string): Promise<MemberRow[]> {
+  const snap = await getDocs(collection(db, 'groups', groupId, 'members'))
+  return snap.docs.map(d => {
+    const x = d.data() as any
+    return {
+      uid: d.id,
+      role: x.role,
+      displayName: x.displayName ?? null,
+      email: x.email ?? null,
+      photoURL: x.photoURL ?? null,
+    }
+  })
+}
 export async function isMember(groupId: string, uid: string) {
   if (!uid) return false
   const snap = await getDoc(doc(db, 'groups', groupId, 'members', uid))
@@ -1014,10 +1202,53 @@ export async function isAdmin(groupId: string, uid: string) {
   const m = await getDoc(doc(db, 'groups', groupId, 'members', uid))
   return m.exists() && m.data()?.role === 'admin'
 }
+// Suscripción en tiempo real a items del grupo
+export function subscribeItems(groupId: string, cb: (items: (ItemDoc & { id: string })[]) => void) {
+  const colRef = collection(db, 'groups', groupId, 'items')
+  const off = onSnapshot(colRef, (snap) => {
+    const rows = snap.docs.map(d => ({ id: d.id, ...(d.data() as ItemDoc) }))
+    cb(rows)
+  })
+  return off
+}
+// (opcional) sembrar items desde una lista (útil la primera vez)
+export async function seedItems(groupId: string, items: (ItemDoc & { id: string })[]) {
+  for (const it of items) {
+    await setDoc(doc(db, 'groups', groupId, 'items', it.id), {
+      name: it.name, price: it.price, qty: it.qty,
+      assignedUserIds: it.assignedUserIds ?? []
+    })
+  }
+}
+// Admin: setear lista completa de asignados
+export async function setItemAssignments(groupId: string, itemId: string, assignedUserIds: string[]) {
+  await updateDoc(doc(db, 'groups', groupId, 'items', itemId), { assignedUserIds })
+}
 
+// Miembro: tomar/quitarse del ítem
+export async function claimItem(groupId: string, itemId: string, uid: string) {
+  try {
+    await updateDoc(doc(db, 'groups', groupId, 'items', itemId), {
+      assignedUserIds: arrayUnion(uid)
+    })
+  } catch (e: any) {
+    console.error('claimItem failed', { groupId, itemId, uid, code: e?.code, msg: e?.message })
+    throw e
+  }
+}
+export async function unclaimItem(groupId: string, itemId: string, uid: string) {
+  try {
+    await updateDoc(doc(db, 'groups', groupId, 'items', itemId), {
+      assignedUserIds: arrayRemove(uid)
+    })
+  } catch (e: any) {
+    console.error('unclaimItem failed', { groupId, itemId, uid, code: e?.code, msg: e?.message })
+    throw e
+  }
+}
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\services\mocks.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\services\mocks.ts
 =======================
 // src/services/mocks.ts
 // === Tipos ===
@@ -1032,12 +1263,14 @@ export type MockReceiptItem = {
   price: number
   qty: number
   assignedUserIds?: string[] // multi-asignación para dividir
+
 }
 
 export type MockReceipt = {
   id: string
   titulo: string
   items: MockReceiptItem[]
+    imageUrl?: string 
 }
 
 export type MockGroup = {
@@ -1061,6 +1294,7 @@ const RECEIPTS: MockReceipt[] = [
   {
     id: 'r_demo',
     titulo: 'Pub Viernes · 2025-11-01',
+    imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=1200',
     items: [
       { id: 'i1', name: 'Papas fritas', price: 6000, qty: 1, assignedUserIds: ['u1', 'u2'] },
       { id: 'i2', name: 'Cerveza',      price: 3000, qty: 2, assignedUserIds: ['u3'] },
@@ -1140,10 +1374,10 @@ export async function ocrMock(fileName: string): Promise<{ grupoId: string; item
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\auth.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\stores\auth.ts
 =======================
 import { defineStore } from 'pinia'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -1156,32 +1390,51 @@ import { auth } from '@/lib/firebase'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const loading = ref(true)
+  let inited = false
 
-  onMounted(() => {
+  // Inicializa SIEMPRE (incluso si el store se usa en router, no en componentes)
+  function init() {
+    if (inited) return
+    inited = true
     onAuthStateChanged(auth, (u) => {
       user.value = u
       loading.value = false
     })
-  })
+  }
+  init()
+
+  // Espera a que Firebase procese el primer estado de sesión
+  async function waitForInit() {
+    if (!loading.value) return
+    // Firebase 10+ expone authStateReady(); si no, cae a una espera corta
+    if (typeof (auth as any).authStateReady === 'function') {
+      await (auth as any).authStateReady()
+    } else {
+      await new Promise<void>((resolve) => {
+        const off = onAuthStateChanged(auth, () => {
+          off()
+          resolve()
+        })
+      })
+    }
+  }
 
   async function signIn(email: string, password: string) {
     await signInWithEmailAndPassword(auth, email, password)
   }
-
   async function signUp(email: string, password: string) {
     await createUserWithEmailAndPassword(auth, email, password)
   }
-
   async function signOutApp() {
     await signOut(auth)
   }
 
-  return { user, loading, signIn, signUp, signOutApp }
+  return { user, loading, waitForInit, signIn, signUp, signOutApp }
 })
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\counter.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\stores\counter.ts
 =======================
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
@@ -1198,7 +1451,7 @@ export const useCounterStore = defineStore('counter', () => {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\stores\ui.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\stores\ui.ts
 =======================
 import { defineStore } from 'pinia'
 
@@ -1241,7 +1494,7 @@ export const useUiStore = defineStore('ui', {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\tailwind.css
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\styles\tailwind.css
 =======================
 @tailwind base;
 @tailwind components;
@@ -1249,7 +1502,7 @@ export const useUiStore = defineStore('ui', {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\styles\variables.css
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\styles\variables.css
 =======================
 :root {
   --surface-0: #ffffff;   /* fondo de card en CLARO */
@@ -1276,7 +1529,7 @@ export const useUiStore = defineStore('ui', {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\GroupView.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\views\GroupView.vue
 =======================
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -1293,7 +1546,7 @@ const groupId = computed(() => String(route.params.id ?? 'grp_demo'))
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\JoinGroupView.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\views\JoinGroupView.vue
 =======================
 <script setup lang="ts">
 import { computed } from 'vue'
@@ -1313,6 +1566,11 @@ const groupId = computed(() => String(route.params.id))
 
 async function doJoin() {
     if (!auth.user) return router.push({ name: 'login', query: { redirect: route.fullPath } })
+    await joinGroup(groupId.value, auth.user.uid, {
+        displayName: auth.user.displayName,
+        email: auth.user.email,
+        photoURL: auth.user.photoURL
+    })
     try {
         await joinGroup(groupId.value, auth.user.uid)
         toast.add({ severity: 'success', summary: 'Te uniste al grupo', life: 2000 })
@@ -1338,7 +1596,7 @@ async function doJoin() {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\LoginView.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\views\LoginView.vue
 =======================
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -1396,16 +1654,17 @@ async function submit() {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\src\views\UploadView.vue
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\src\views\UploadView.vue
 =======================
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
-
+import { useAuthStore } from '@/stores/auth'
+import { createGroup } from '@/services/db'
 
 import AppCard from '@/components/AppCard.vue'
-
-// PrimeVue components
+// PrimeVue...
 import FileUpload from 'primevue/fileupload'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -1418,6 +1677,9 @@ import { ocrMock, type OcrItem } from '@/services/mocks'
 
 // ===== state
 const toast = useToast()
+const router = useRouter()
+const auth = useAuthStore()
+
 const uploading = ref(false)
 const fileName = ref<string | null>(null)
 const grupoId = ref<string | null>(null)
@@ -1440,7 +1702,7 @@ async function onCustomUpload(evt: any) {
 
     // simulamos OCR
     const res = await ocrMock(file.name)
-    grupoId.value = res.grupoId
+    grupoId.value = res.grupoId // por ahora viene 'grp_demo' del mock
     rows.value = res.items
 
     toast.add({ severity: 'success', summary: 'OCR simulado', detail: `Grupo ${res.grupoId}`, life: 2500 })
@@ -1461,33 +1723,43 @@ function removeRow(id: string) {
   rows.value = rows.value.filter((r: OcrItem) => r.id !== id)
 }
 
+// 👇 NUEVO: continuar → crea grupo (si no existe) y navega
+async function onContinue() {
+  if (!hasResult.value || !grupoId.value) return
+
+  // si no hay sesión, manda a login con redirect
+  if (!auth.user) {
+    return router.push({ name: 'login', query: { redirect: `/grupo/${grupoId.value}` } })
+  }
+
+  try {
+    // Crea el grupo y tu membresía admin (id = grupoId del mock por ahora)
+    await createGroup(
+      grupoId.value,
+      fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
+      auth.user.uid
+    )
+  } catch (e) {
+    // si ya existía, no pasa nada (setDoc sobrescribe); lo dejamos silencioso
+  }
+
+  // navega al grupo (el guard te dejará pasar porque ya eres miembro admin)
+  router.push({ name: 'grupo', params: { id: grupoId.value } })
+}
 </script>
+
 
 <template>
   <div class="max-w-4xl mx-auto">
-    <AppCard
-      title="Cargar boleta"
-      subtitle="Paso 1 · Subir imagen"
-    >
+    <AppCard title="Cargar boleta" subtitle="Paso 1 · Subir imagen">
       <!-- Uploader -->
       <div class="space-y-4">
-        <FileUpload
-          mode="advanced"
-          name="files[]"
-          accept="image/*,application/pdf"
-          :maxFileSize="8_000_000"
-          :multiple="false"
-          chooseLabel="Seleccionar"
-          uploadLabel="Procesar OCR"
-          cancelLabel="Limpiar"
-          :customUpload="true"
-          @uploader="onCustomUpload"
-          @clear="clearAll"
-          :pt="{
+        <FileUpload mode="advanced" name="files[]" accept="image/*,application/pdf" :maxFileSize="8_000_000"
+          :multiple="false" chooseLabel="Seleccionar" uploadLabel="Procesar OCR" cancelLabel="Limpiar"
+          :customUpload="true" @uploader="onCustomUpload" @clear="clearAll" :pt="{
             root: { class: 'w-full' },
             content: { class: 'bg-transparent border border-[var(--border)] rounded-xl' }
-          }"
-        />
+          }" />
 
         <!-- Estado de carga -->
         <div v-if="uploading" class="grid grid-cols-1 gap-3">
@@ -1508,24 +1780,13 @@ function removeRow(id: string) {
             </div>
           </div>
 
-          <DataTable
-            :value="rows"
-            dataKey="id"
-            class="rounded-xl overflow-hidden border border-[var(--border)]"
-            :pt="{ table: { class: 'min-w-full' } }"
-          >
+          <DataTable :value="rows" dataKey="id" class="rounded-xl overflow-hidden border border-[var(--border)]"
+            :pt="{ table: { class: 'min-w-full' } }">
             <Column field="descripcion" header="Descripción" />
             <Column header="Monto">
               <template #body="{ data }">
-                <InputNumber
-                  v-model="data.monto"
-                  inputId="monto"
-                  mode="currency"
-                  currency="CLP"
-                  locale="es-CL"
-                  :min="0"
-                  class="w-40"
-                />
+                <InputNumber v-model="data.monto" inputId="monto" mode="currency" currency="CLP" locale="es-CL" :min="0"
+                  class="w-40" />
               </template>
             </Column>
             <Column field="categoria" header="Categoría">
@@ -1550,7 +1811,7 @@ function removeRow(id: string) {
       <!-- Footer -->
       <template #footer>
         <div class="flex items-center justify-end gap-3">
-          <Button label="Continuar" icon="pi pi-arrow-right" :disabled="!hasResult" />
+          <Button label="Continuar" icon="pi pi-arrow-right" :disabled="!hasResult" @click="onContinue" />
         </div>
       </template>
     </AppCard>
@@ -1559,7 +1820,7 @@ function removeRow(id: string) {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tailwind.config.js
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\tailwind.config.js
 =======================
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -1571,7 +1832,7 @@ export default {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.app.json
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\tsconfig.app.json
 =======================
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
@@ -1588,7 +1849,7 @@ export default {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.json
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\tsconfig.json
 =======================
 {
   "files": [],
@@ -1604,7 +1865,7 @@ export default {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\tsconfig.node.json
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\tsconfig.node.json
 =======================
 {
   "extends": "@tsconfig/node22/tsconfig.json",
@@ -1628,7 +1889,7 @@ export default {
 
 
 =======================
-📄 C:\Users\sebapalacios\Documents\tess\ocr-splitter\vite.config.ts
+📄 C:\Users\thexz\OneDrive\Documentos\ocr-splitter\vite.config.ts
 =======================
 import { fileURLToPath, URL } from 'node:url'
 

@@ -1,6 +1,6 @@
 import {
   collection, doc, getDoc, setDoc, serverTimestamp, onSnapshot, updateDoc, arrayUnion, arrayRemove,
-  getDocs
+  getDocs, 
  
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
@@ -19,35 +19,61 @@ export type ItemDoc = {
 export type MemberDoc = {
   role: 'admin' | 'member'
   joinedAt: any
+  displayName?: string | null
+  email?: string | null
+  photoURL?: string | null
 }
 
+
 // Crea grupo + membership admin en la misma operación (2 escrituras)
-export async function createGroup(groupId: string, title: string, ownerUid: string) {
+export async function createGroup(
+  groupId: string,
+  title: string,
+  owner: { uid: string; displayName: string | null; email: string | null; photoURL: string | null }
+) {
   const gRef = doc(db, 'groups', groupId)
-  const mRef = doc(db, 'groups', groupId, 'members', ownerUid)
+  const mRef = doc(db, 'groups', groupId, 'members', owner.uid)
 
   await setDoc(gRef, {
-    title, ownerUid, createdAt: serverTimestamp(),
+    title,
+    ownerUid: owner.uid,
+    createdAt: serverTimestamp(),
   } as GroupDoc)
 
   await setDoc(mRef, {
-    role: 'admin', joinedAt: serverTimestamp(),
+    role: 'admin',
+    joinedAt: serverTimestamp(),
+    displayName: owner.displayName ?? null,
+    email: owner.email ?? null,
+    photoURL: owner.photoURL ?? null,
   } as MemberDoc)
 
   return { groupId }
 }
 
+
+
 // Agregar miembro como 'member'
-export async function joinGroup(groupId: string, uid: string, profile?: { displayName?: string|null; email?: string|null; photoURL?: string|null }) {
-  const mRef = doc(db, 'groups', groupId, 'members', uid)
-  await setDoc(mRef, {
-    role: 'member',
-    joinedAt: serverTimestamp(),
-    displayName: profile?.displayName ?? null,
-    email: profile?.email ?? null,
-    photoURL: profile?.photoURL ?? null,
-  } as any, { merge: true })
+export async function joinGroup(
+  groupId: string,
+  uid: string,
+  profile: { displayName: string | null; email: string | null; photoURL: string | null }
+) {
+  const ref = doc(db, 'groups', groupId, 'members', uid)
+
+  await setDoc(
+    ref,
+    {
+      role: 'member',
+      displayName: profile.displayName ?? null,
+      email: profile.email ?? null,
+      photoURL: profile.photoURL ?? null,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true } // si ya existía, solo agrega/actualiza estos campos
+  )
 }
+
 export type MemberRow = {
   uid: string
   role: 'admin' | 'member'

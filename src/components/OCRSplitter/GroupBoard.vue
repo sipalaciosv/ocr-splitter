@@ -25,7 +25,7 @@ import {
 import {
   mockGetGroupById,
   mockGetReceiptById,
-  mockListUsersByIds,
+
   type MockGroup,
   type MockUser,
   type MockReceipt,
@@ -48,7 +48,9 @@ const items = ref<MockReceiptItem[]>([])          // SIEMPRE viene de Firestore 
 const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
 
 const currentUserId = computed(() => auth.user?.uid ?? '')
-const isAdmin = computed(() => group.value?.ownerUid === currentUserId.value)
+const isAdmin = computed(() =>
+  members.value.some(m => m.uid === currentUserId.value && m.role === 'admin')
+)
 
 // ver boleta
 const showReceipt = ref(false)
@@ -103,11 +105,7 @@ onMounted(async () => {
     }
 
     // Fuente del MultiSelect/chips: prefiero los miembros de Firestore; si no hay, fallback mock
-    if (members.value.length > 0) {
-      users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
-    } else {
-      users.value = await mockListUsersByIds(g.miembros)
-    }
+   users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
 
     // 3) Metadata de boleta (mock por ahora, para título/imagen)
     const r = await mockGetReceiptById(g.receiptId)
@@ -287,25 +285,25 @@ async function shareLink() {
               {{ group?.nombre ?? 'Grupo' }}
             </h1>
 
-            <!-- Badges debajo -->
-            <div class="flex flex-wrap items-center gap-2 text-[11px]">
-              <!-- En vivo -->
-              <span
-                class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5
-                       border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-              >
-                <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                En vivo · sincronizado
-              </span>
+           <!-- Badges debajo -->
+          <!-- Línea de estado debajo del título -->
+          <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-muted)]">
+            <!-- En vivo -->
+            <span class="inline-flex items-center gap-1">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>En vivo · sincronizado</span>
+            </span>
 
-              <!-- Rol -->
-              <span
-                class="inline-flex items-center rounded-full border px-2 py-0.5 uppercase tracking-wide
-                       border-zinc-500/40 bg-zinc-500/10 text-zinc-300"
-              >
-                {{ isAdmin ? 'ADMIN' : 'INVITADO' }}
-              </span>
-            </div>
+            <!-- separador -->
+            <span class="h-3 w-px bg-zinc-600/60" />
+
+            <!-- Rol -->
+            <span class="uppercase tracking-wide">
+              {{ isAdmin ? 'Admin' : 'Invitado' }}
+            </span>
+          </div>
+
+
 
             <!-- Línea secundaria -->
             <p class="text-xs text-[var(--text-muted)]">

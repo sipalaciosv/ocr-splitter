@@ -44,10 +44,10 @@ const RECEIPTS: MockReceipt[] = [
     titulo: 'Pub Viernes · 2025-11-01',
     imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?q=80&w=1200',
     items: [
-      { id: 'i1', name: 'Papas fritas', price: 6000, qty: 1, assignedUserIds: ['u1', 'u2'] },
-      { id: 'i2', name: 'Cerveza',      price: 3000, qty: 2, assignedUserIds: ['u3'] },
-      { id: 'i3', name: 'Pizza',        price: 12000, qty: 1, assignedUserIds: ['u1'] },
-      { id: 'i4', name: 'Bebida',       price: 2500, qty: 3, assignedUserIds: [] },
+      { id: 'i1', name: 'Papas fritas', price: 6000, qty: 1 },
+      { id: 'i2', name: 'Cerveza',      price: 3000, qty: 2 },
+      { id: 'i3', name: 'Pizza',        price: 12000, qty: 1},
+      { id: 'i4', name: 'Bebida',       price: 2500, qty: 3 },
     ]
   }
 ]

@@ -77,10 +77,16 @@ async function onContinue() {
   try {
     // Crea el grupo y tu membresía admin (id = grupoId del mock por ahora)
     await createGroup(
-      grupoId.value,
-      fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
-      auth.user.uid
-    )
+  grupoId.value,
+  fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
+  {
+    uid: auth.user.uid,
+    displayName: auth.user.displayName,
+    email: auth.user.email,
+    photoURL: auth.user.photoURL,
+  }
+)
+
   } catch (e) {
     // si ya existía, no pasa nada (setDoc sobrescribe); lo dejamos silencioso
   }

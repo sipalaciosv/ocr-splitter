@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
+import { joinGroup } from '@/services/db'
 
 const router = useRouter()
 const route = useRoute()
@@ -19,18 +20,72 @@ const isSignUp = ref(false)
 
 async function submit() {
     try {
+        // 1) Login o registro
         if (isSignUp.value) {
             await auth.signUp(email.value, password.value)
         } else {
             await auth.signIn(email.value, password.value)
         }
-        const redirect = (route.query.redirect as string) ?? '/'
+
+        // 2) Normalizamos el redirect
+        const redirectRaw = route.query.redirect
+        const redirect: string =
+            typeof redirectRaw === 'string'
+                ? redirectRaw
+                : '/'
+
+        // 3) Caso especial: link de invitación (/join/:id)
+        if (redirect.startsWith('/join/')) {
+            const parts = redirect.split('/')
+            const last = parts[parts.length - 1]
+            const groupId: string = last ?? ''
+
+            const u = auth.user // Pinia unwrapping: User | null
+            if (!u) {
+                // Si por timing aún no está seteado el usuario en el store
+                toast.add({
+                    severity: 'warn',
+                    summary: 'Sesión inicializando',
+                    detail: 'Si no entras al grupo, recarga la página e inténtalo de nuevo.',
+                    life: 2500,
+                })
+                return router.replace(redirect)
+            }
+
+            try {
+                // 👇 Aquí todo es string o null, sin undefined
+                await joinGroup(groupId, u.uid, {
+                    displayName: u.displayName ?? null,
+                    email: u.email ?? null,
+                    photoURL: u.photoURL ?? null,
+                })
+            } catch (e: any) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'No se pudo unir al grupo',
+                    detail: e?.message ?? String(e),
+                    life: 3000,
+                })
+                return router.replace(redirect)
+            }
+
+            // Todo ok → directo al tablero del grupo
+            return router.replace({ name: 'grupo', params: { id: groupId } })
+        }
+
+        // 4) Caso normal (no venía de /join/:id)
         router.replace(redirect)
     } catch (e: any) {
-        toast.add({ severity: 'error', summary: 'Auth error', detail: e?.message ?? String(e), life: 3000 })
+        toast.add({
+            severity: 'error',
+            summary: 'Auth error',
+            detail: e?.message ?? String(e),
+            life: 3000,
+        })
     }
 }
 </script>
+
 
 <template>
     <div class="max-w-md mx-auto">

@@ -13,7 +13,7 @@ import { useAuthStore } from '@/stores/auth'
 
 // Firestore helpers
 import {
-  listMembers,
+  subscribeMembers,
   subscribeItems,
   seedItems,
   setItemAssignments,
@@ -46,7 +46,7 @@ const items = ref<MockReceiptItem[]>([])          // SIEMPRE viene de Firestore 
 
 // miembros reales (Firestore) — para mostrar nombres en vez de IDs
 const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
-
+let offMembers: (() => void) | null = null
 const currentUserId = computed(() => auth.user?.uid ?? '')
 const isAdmin = computed(() =>
   members.value.some(m => m.uid === currentUserId.value && m.role === 'admin')
@@ -92,20 +92,28 @@ onMounted(async () => {
     }
     group.value = g
 
-    // 2) Miembros reales desde Firestore
+    // 2) Miembros reales desde Firestore (SUSCRIPCIÓN en tiempo real)
     try {
-      const rows = await listMembers(props.groupId)
-      members.value = rows.map(r => ({
-        uid: r.uid,
-        role: r.role,
-        name: r.displayName || r.email || r.uid,
-      }))
+      offMembers = subscribeMembers(props.groupId, (rows) => {
+        members.value = rows.map((r) => ({
+          uid: r.uid,
+          role: r.role,
+          name: r.displayName || r.email || r.uid,
+        }))
+
+        // Fuente del MultiSelect / chips
+        users.value = members.value.map((m) => ({
+          id: m.uid,
+          nombre: m.name,
+        }))
+      })
     } catch {
       members.value = []
+      users.value = []
     }
 
     // Fuente del MultiSelect/chips: prefiero los miembros de Firestore; si no hay, fallback mock
-   users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
+    users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
 
     // 3) Metadata de boleta (mock por ahora, para título/imagen)
     const r = await mockGetReceiptById(g.receiptId)
@@ -148,6 +156,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   offItems?.()
+  offMembers?.()
 })
 
 /** Subtotales por ítem */
@@ -245,20 +254,22 @@ async function toggleSelf(it: MockReceiptItem, want: boolean) {
   }
 }
 
-// Link compartir
-const currentUrl = computed(() => (typeof window !== 'undefined' ? window.location.href : ''))
-
+// Link compartir: siempre invitación a /join/:groupId
+const joinUrl = computed(() => {
+  if (typeof window === 'undefined') return ''
+  const origin = window.location.origin
+  return `${origin}/join/${props.groupId}`
+})
 function copyLink() {
-  const url = currentUrl.value
+  const url = joinUrl.value
   if (!url) return
   if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(url)
-    toast.add({ severity: 'success', summary: 'Link copiado', life: 2000 })
+    toast.add({ severity: 'success', summary: 'Link de invitación copiado', life: 2000 })
   }
 }
-
 async function shareLink() {
-  const url = currentUrl.value
+  const url = joinUrl.value
   if (!url || typeof navigator === 'undefined') return
   if (typeof navigator.share === 'function') {
     try {
@@ -268,7 +279,11 @@ async function shareLink() {
     }
   } else if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(url)
-    toast.add({ severity: 'info', summary: 'Compartir no disponible; link copiado', life: 2500 })
+    toast.add({
+      severity: 'info',
+      summary: 'Compartir no disponible; link copiado',
+      life: 2500,
+    })
   }
 }
 </script>
@@ -279,31 +294,31 @@ async function shareLink() {
       <!-- HEADER custom -->
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div class="min-w-0 space-y-1">
+          <div class="min-w-0 space-y-2">
             <!-- Nombre del grupo -->
             <h1 class="text-base sm:text-xl font-semibold leading-tight truncate">
               {{ group?.nombre ?? 'Grupo' }}
             </h1>
 
-           <!-- Badges debajo -->
-          <!-- Línea de estado debajo del título -->
-          <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[var(--text-muted)]">
-            <!-- En vivo -->
-            <span class="inline-flex items-center gap-1">
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>En vivo · sincronizado</span>
-            </span>
+            <!-- Fila de estado + rol -->
+            <div
+              class="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-[13px] text-[var(--text-muted)]">
+              <!-- En vivo -->
+              <span class="inline-flex items-center gap-1.5">
+                <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>En vivo · sincronizado</span>
+              </span>
 
-            <!-- separador -->
-            <span class="h-3 w-px bg-zinc-600/60" />
+              <!-- separador -->
+              <span class="h-3 w-px bg-[var(--border)]/80" />
 
-            <!-- Rol -->
-            <span class="uppercase tracking-wide">
-              {{ isAdmin ? 'Admin' : 'Invitado' }}
-            </span>
-          </div>
-
-
+              <!-- Rol -->
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-[var(--border)]
+                 uppercase tracking-wide text-[10px] sm:text-[11px] font-semibold">
+                <i :class="['pi text-[0.75rem]', isAdmin ? 'pi-shield' : 'pi-user-plus']" />
+                <span>{{ isAdmin ? 'Admin' : 'Invitado' }}</span>
+              </span>
+            </div>
 
             <!-- Línea secundaria -->
             <p class="text-xs text-[var(--text-muted)]">
@@ -314,38 +329,13 @@ async function shareLink() {
 
           <!-- Botones a la derecha / abajo en mobile -->
           <div class="flex flex-wrap justify-end gap-2">
-            <Button
-              label="Ver boleta"
-              icon="pi pi-image"
-              size="small"
-              severity="secondary"
-              @click="showReceipt = true"
-            />
-            <Button
-              label="Copiar link"
-              icon="pi pi-link"
-              size="small"
-              class="sm:w-auto"
-              @click="copyLink"
-            />
-            <Button
-              label="Compartir"
-              icon="pi pi-share-alt"
-              size="small"
-              severity="secondary"
-              class="sm:w-auto"
-              @click="shareLink"
-            />
-            <Button
-              v-if="isAdmin"
-              label="Reiniciar"
-              icon="pi pi-refresh"
-              size="small"
-              severity="danger"
-              outlined
-              :disabled="loading"
-              @click="clearAssignments"
-            />
+            <Button label="Ver boleta" icon="pi pi-image" size="small" severity="secondary"
+              @click="showReceipt = true" />
+            <Button label="Copiar link" icon="pi pi-link" size="small" class="sm:w-auto" @click="copyLink" />
+            <Button label="Compartir" icon="pi pi-share-alt" size="small" severity="secondary" class="sm:w-auto"
+              @click="shareLink" />
+            <Button v-if="isAdmin" label="Reiniciar" icon="pi pi-refresh" size="small" severity="danger" outlined
+              :disabled="loading" @click="clearAssignments" />
           </div>
         </div>
       </template>
@@ -354,7 +344,7 @@ async function shareLink() {
       <div class="grid w-full gap-4 lg:grid-cols-12">
         <!-- IZQUIERDA: Tabla de ítems -->
         <div class="lg:col-span-8">
-          <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)]/60 dark:bg-[#050814] shadow-sm">
+          <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div class="font-medium text-sm sm:text-base">Ítems de la boleta</div>
               <div class="text-xs sm:text-sm text-[var(--text-muted)]">
@@ -366,52 +356,26 @@ async function shareLink() {
             </div>
 
             <!-- DataTable: SIN overflow raro, usa table-layout fixed -->
-            <DataTable
-              :value="items"
-              dataKey="id"
-              :loading="loading"
-              tableStyle="width: 100%; table-layout: fixed"
-              class="text-sm"
-              size="small"
-              :rows="10"
-              paginator
-              :rowsPerPageOptions="[10, 20, 50]"
-            >
+            <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="width: 100%; table-layout: fixed"
+              class="text-sm" size="small" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
               <Column field="name" header="Producto" sortable style="width: 32%">
                 <template #body="{ data }">
                   <div class="font-medium truncate">{{ data.name }}</div>
-                  <div class="text-xs opacity-70" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                  <div class="text-xs text-[var(--text-muted)]" v-if="(data.assignedUserIds?.length ?? 0) > 0">
                     Compartido entre {{ data.assignedUserIds.length }}
                   </div>
                 </template>
               </Column>
 
-              <Column
-                field="price"
-                header="Precio"
-                sortable
-                style="width: 14%"
-                bodyClass="text-right"
-              >
+              <Column field="price" header="Precio" sortable style="width: 14%" bodyClass="text-right">
                 <template #body="{ data }">
                   <span class="tabular-nums">{{ currency(data.price) }}</span>
                 </template>
               </Column>
 
-              <Column
-                field="qty"
-                header="Cant."
-                sortable
-                style="width: 10%"
-                bodyClass="text-center tabular-nums"
-              />
+              <Column field="qty" header="Cant." sortable style="width: 10%" bodyClass="text-center tabular-nums" />
 
-              <Column
-                header="Subtotal"
-                sortable
-                style="width: 18%"
-                bodyClass="text-right font-semibold tabular-nums"
-              >
+              <Column header="Subtotal" sortable style="width: 18%" bodyClass="text-right font-semibold tabular-nums">
                 <template #body="{ data }">
                   {{ currency(data.price * data.qty) }}
                 </template>
@@ -421,43 +385,22 @@ async function shareLink() {
                 <template #body="{ data }">
                   <!-- Admin: edición completa (persistente) -->
                   <template v-if="isAdmin">
-                    <MultiSelect
-                      :modelValue="data.assignedUserIds"
-                      @update:modelValue="(v) => onAdminAssignChange(data, v)"
-                      :options="users"
-                      optionLabel="nombre"
-                      optionValue="id"
-                      display="chip"
-                      class="w-full"
-                      placeholder="Selecciona personas..."
-                    />
-                    <div
-                      class="mt-1 flex flex-wrap gap-1"
-                      v-if="(data.assignedUserIds?.length ?? 0) > 0"
-                    >
+                    <MultiSelect :modelValue="data.assignedUserIds"
+                      @update:modelValue="(v) => onAdminAssignChange(data, v)" :options="users" optionLabel="nombre"
+                      optionValue="id" display="chip" class="w-full" placeholder="Selecciona personas..." />
+                    <div class="mt-1 flex flex-wrap gap-1" v-if="(data.assignedUserIds?.length ?? 0) > 0">
                       <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
                     </div>
                   </template>
 
                   <!-- Miembro: solo auto-asignarse / quitarse -->
                   <template v-else>
-                    <div
-                      v-if="(data.assignedUserIds?.length ?? 0) > 0"
-                      class="mb-2 flex flex-wrap items-center gap-1"
-                    >
-                      <Tag
-                        v-for="uid in visibleAssigned(data.id, data.assignedUserIds)"
-                        :key="uid"
-                        :value="userLabel(uid)"
-                        rounded
-                        class="text-xs"
-                      />
-                      <button
-                        v-if="(data.assignedUserIds?.length ?? 0) > 2"
-                        type="button"
+                    <div v-if="(data.assignedUserIds?.length ?? 0) > 0" class="mb-2 flex flex-wrap items-center gap-1">
+                      <Tag v-for="uid in visibleAssigned(data.id, data.assignedUserIds)" :key="uid"
+                        :value="userLabel(uid)" rounded class="text-xs" />
+                      <button v-if="(data.assignedUserIds?.length ?? 0) > 2" type="button"
                         class="text-[11px] underline-offset-2 hover:underline text-[var(--text-muted)]"
-                        @click="toggleExpanded(data.id)"
-                      >
+                        @click="toggleExpanded(data.id)">
                         {{
                           isExpanded(data.id)
                             ? 'Ver menos'
@@ -467,19 +410,10 @@ async function shareLink() {
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                      <Button
-                        label="Tomar"
-                        size="small"
-                        @click="toggleSelf(data, true)"
-                        :disabled="(data.assignedUserIds ?? []).includes(currentUserId)"
-                      />
-                      <Button
-                        label="Quitarme"
-                        size="small"
-                        severity="secondary"
-                        @click="toggleSelf(data, false)"
-                        :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)"
-                      />
+                      <Button label="Tomar" size="small" @click="toggleSelf(data, true)"
+                        :disabled="(data.assignedUserIds ?? []).includes(currentUserId)" />
+                      <Button label="Quitarme" size="small" severity="secondary" @click="toggleSelf(data, false)"
+                        :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)" />
                     </div>
                   </template>
                 </template>
@@ -490,10 +424,12 @@ async function shareLink() {
 
         <!-- DERECHA: Totales -->
         <div class="lg:col-span-4">
-          <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)]/60 dark:bg-[#050814] shadow-sm">
+          <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4">
               <div class="font-medium">Resumen</div>
-              <div class="text-xs opacity-70">Se reparte proporcionalmente por ítem</div>
+              <div class="text-xs text-[var(--text-muted)]">
+                Se reparte proporcionalmente por ítem
+              </div>
 
               <Divider class="my-3" />
 
@@ -506,7 +442,9 @@ async function shareLink() {
                 <span class="font-medium">{{ currency(totalAsignado) }}</span>
               </div>
 
-              <div class="text-xs opacity-70 mb-2">Totales por persona</div>
+              <div class="text-xs text-[var(--text-muted)] mb-2">
+                Totales por persona
+              </div>
               <div class="space-y-2">
                 <div v-for="u in users" :key="u.id" class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
@@ -522,19 +460,9 @@ async function shareLink() {
               <Divider class="my-3" />
 
               <div class="flex flex-col sm:flex-row gap-2">
-                <Button
-                  label="Copiar link del grupo"
-                  icon="pi pi-link"
-                  class="w-full"
-                  @click="copyLink"
-                />
-                <Button
-                  label="Compartir"
-                  icon="pi pi-share-alt"
-                  severity="secondary"
-                  class="w-full"
-                  @click="shareLink"
-                />
+                <Button label="Copiar link del grupo" icon="pi pi-link" class="w-full" @click="copyLink" />
+                <Button label="Compartir" icon="pi pi-share-alt" severity="secondary" class="w-full"
+                  @click="shareLink" />
               </div>
             </div>
           </div>
@@ -542,19 +470,10 @@ async function shareLink() {
       </div>
 
       <!-- Dialog: Boleta -->
-      <Dialog
-        v-model:visible="showReceipt"
-        modal
-        header="Boleta"
-        :style="{ width: 'min(92vw, 720px)' }"
-      >
+      <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
         <div class="w-full">
-          <img
-            v-if="receipt?.imageUrl"
-            :src="receipt.imageUrl"
-            alt="Boleta"
-            class="w-full h-auto rounded-xl border border-[var(--border)]"
-          />
+          <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
+            class="w-full h-auto rounded-xl border border-[var(--border)]" />
           <div v-else class="text-sm text-[var(--text-muted)]">Sin imagen (demo)</div>
         </div>
       </Dialog>

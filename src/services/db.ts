@@ -95,11 +95,42 @@ export async function listMembers(groupId: string): Promise<MemberRow[]> {
     }
   })
 }
+export function subscribeMembers(
+  groupId: string,
+  cb: (rows: MemberRow[]) => void
+) {
+  const colRef = collection(db, 'groups', groupId, 'members')
+  const off = onSnapshot(colRef, (snap) => {
+    const rows: MemberRow[] = snap.docs.map((d) => {
+      const x = d.data() as any
+      return {
+        uid: d.id,
+        role: x.role,
+        displayName: x.displayName ?? null,
+        email: x.email ?? null,
+        photoURL: x.photoURL ?? null,
+      }
+    })
+    cb(rows)
+  })
+  return off
+}
+
 export async function isMember(groupId: string, uid: string) {
   if (!uid) return false
-  const snap = await getDoc(doc(db, 'groups', groupId, 'members', uid))
-  return snap.exists()
+  try {
+    const snap = await getDoc(doc(db, 'groups', groupId, 'members', uid))
+    return snap.exists()
+  } catch (e: any) {
+    // Si Firestore no deja leer (por reglas), lo tratamos como "no es miembro"
+    if (e?.code === 'permission-denied') {
+      return false
+    }
+    // Otros errores sí los propagamos
+    throw e
+  }
 }
+
 
 export async function isAdmin(groupId: string, uid: string) {
   const m = await getDoc(doc(db, 'groups', groupId, 'members', uid))

@@ -31,6 +31,11 @@ import {
   type MockReceipt,
   type MockReceiptItem,
 } from '@/services/mocks'
+const adminMultiSelectPt = {
+  root: { class: 'h-8 text-xs' },           // alto bajito + texto chico
+  label: { class: 'py-1 text-xs truncate' }, // padding vertical mínimo
+  dropdown: { class: 'w-7' },               // icono más pequeño
+} as const
 
 type Props = { groupId: string }
 const props = defineProps<Props>()
@@ -112,16 +117,12 @@ onMounted(async () => {
       users.value = []
     }
 
-    // Fuente del MultiSelect/chips: prefiero los miembros de Firestore; si no hay, fallback mock
-    users.value = members.value.map(m => ({ id: m.uid, nombre: m.name }))
-
     // 3) Metadata de boleta (mock por ahora, para título/imagen)
     const r = await mockGetReceiptById(g.receiptId)
     receipt.value = r
 
     // 4) Suscripción tiempo real a items de Firestore
     offItems = subscribeItems(props.groupId, (rows) => {
-      // Adaptamos al shape que usa la tabla
       items.value = rows.map(r => ({
         id: r.id,
         name: r.name,
@@ -300,24 +301,9 @@ async function shareLink() {
               {{ group?.nombre ?? 'Grupo' }}
             </h1>
 
-            <!-- Fila de estado + rol -->
-            <div
-              class="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-xs sm:text-[13px] text-[var(--text-muted)]">
-              <!-- En vivo -->
-              <span class="inline-flex items-center gap-1.5">
-                <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>En vivo · sincronizado</span>
-              </span>
-
-              <!-- separador -->
-              <span class="h-3 w-px bg-[var(--border)]/80" />
-
-              <!-- Rol -->
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-[var(--border)]
-                 uppercase tracking-wide text-[10px] sm:text-[11px] font-semibold">
-                <i :class="['pi text-[0.75rem]', isAdmin ? 'pi-shield' : 'pi-user-plus']" />
-                <span>{{ isAdmin ? 'Admin' : 'Invitado' }}</span>
-              </span>
+            <div class="flex flex-wrap items-center gap-2">
+              <Tag icon="pi pi-bolt" value="En vivo · sincronizado" rounded />
+              <Tag value="ADMIN" rounded />
             </div>
 
             <!-- Línea secundaria -->
@@ -327,13 +313,10 @@ async function shareLink() {
             </p>
           </div>
 
-          <!-- Botones a la derecha / abajo en mobile -->
+          <!-- Acciones del header -->
           <div class="flex flex-wrap justify-end gap-2">
             <Button label="Ver boleta" icon="pi pi-image" size="small" severity="secondary"
               @click="showReceipt = true" />
-            <Button label="Copiar link" icon="pi pi-link" size="small" class="sm:w-auto" @click="copyLink" />
-            <Button label="Compartir" icon="pi pi-share-alt" size="small" severity="secondary" class="sm:w-auto"
-              @click="shareLink" />
             <Button v-if="isAdmin" label="Reiniciar" icon="pi pi-refresh" size="small" severity="danger" outlined
               :disabled="loading" @click="clearAssignments" />
           </div>
@@ -341,9 +324,10 @@ async function shareLink() {
       </template>
 
       <!-- CONTENIDO -->
-      <div class="grid w-full gap-4 lg:grid-cols-12">
+      <!-- 👇 usamos una clase propia en lugar de `grid` para evitar el choque PrimeFlex/Tailwind -->
+      <div class="board-layout">
         <!-- IZQUIERDA: Tabla de ítems -->
-        <div class="lg:col-span-8">
+        <div>
           <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <div class="font-medium text-sm sm:text-base">Ítems de la boleta</div>
@@ -355,75 +339,139 @@ async function shareLink() {
               </div>
             </div>
 
-            <!-- DataTable: SIN overflow raro, usa table-layout fixed -->
-            <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="width: 100%; table-layout: fixed"
-              class="text-sm" size="small" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
-              <Column field="name" header="Producto" sortable style="width: 32%">
-                <template #body="{ data }">
-                  <div class="font-medium truncate">{{ data.name }}</div>
-                  <div class="text-xs text-[var(--text-muted)]" v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                    Compartido entre {{ data.assignedUserIds.length }}
-                  </div>
-                </template>
-              </Column>
-
-              <Column field="price" header="Precio" sortable style="width: 14%" bodyClass="text-right">
-                <template #body="{ data }">
-                  <span class="tabular-nums">{{ currency(data.price) }}</span>
-                </template>
-              </Column>
-
-              <Column field="qty" header="Cant." sortable style="width: 10%" bodyClass="text-center tabular-nums" />
-
-              <Column header="Subtotal" sortable style="width: 18%" bodyClass="text-right font-semibold tabular-nums">
-                <template #body="{ data }">
-                  {{ currency(data.price * data.qty) }}
-                </template>
-              </Column>
-
-              <Column header="Asignado a" style="width: 26%">
-                <template #body="{ data }">
-                  <!-- Admin: edición completa (persistente) -->
-                  <template v-if="isAdmin">
-                    <MultiSelect :modelValue="data.assignedUserIds"
-                      @update:modelValue="(v) => onAdminAssignChange(data, v)" :options="users" optionLabel="nombre"
-                      optionValue="id" display="chip" class="w-full" placeholder="Selecciona personas..." />
-                    <div class="mt-1 flex flex-wrap gap-1" v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                      <Tag v-for="uid in data.assignedUserIds" :key="uid" :value="userLabel(uid)" />
+            <!-- Desktop / tablet: DataTable -->
+            <div class="hidden sm:block">
+              <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="width: 100%; table-layout: fixed"
+                class="text-sm" size="small" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
+                <Column field="name" header="Producto" sortable style="width: 32%">
+                  <template #body="{ data }">
+                    <div class="font-medium truncate">{{ data.name }}</div>
+                    <div class="text-xs text-[var(--text-muted)]" v-if="(data.assignedUserIds?.length ?? 0) > 0">
+                      Compartido entre {{ data.assignedUserIds?.length ?? 0 }}
                     </div>
                   </template>
+                </Column>
 
-                  <!-- Miembro: solo auto-asignarse / quitarse -->
+                <Column field="price" header="Precio" sortable style="width: 14%" bodyClass="text-right">
+                  <template #body="{ data }">
+                    <span class="tabular-nums">{{ currency(data.price) }}</span>
+                  </template>
+                </Column>
+
+                <Column field="qty" header="Cant." sortable style="width: 10%" bodyClass="text-center tabular-nums" />
+
+                <Column header="Subtotal" sortable style="width: 18%" bodyClass="text-right font-semibold tabular-nums">
+                  <template #body="{ data }">
+                    {{ currency(data.price * data.qty) }}
+                  </template>
+                </Column>
+
+                <Column header="Asignado a" style="width: 26%">
+                  <template #body="{ data }">
+                    <!-- Admin: edición completa (persistente) -->
+                    <template v-if="isAdmin">
+                      <MultiSelect :modelValue="data.assignedUserIds"
+                        @update:modelValue="(v) => onAdminAssignChange(data, v)" :options="users" optionLabel="nombre"
+                        optionValue="id" display="comma" :filter="false" :showToggleAll="false" :maxSelectedLabels="1"
+                        selectedItemsLabel="{0} personas" class="w-full" placeholder="Selecciona personas…"
+                        :pt="adminMultiSelectPt" />
+                    </template>
+
+
+                    <!-- Miembro: solo auto-asignarse / quitarse -->
+                    <template v-else>
+                      <div v-if="(data.assignedUserIds?.length ?? 0) > 0"
+                        class="mb-2 flex flex-wrap items-center gap-1">
+                        <Tag v-for="uid in visibleAssigned(data.id, data.assignedUserIds)" :key="uid"
+                          :value="userLabel(uid)" rounded class="text-xs" />
+                        <button v-if="(data.assignedUserIds?.length ?? 0) > 2" type="button"
+                          class="text-[11px] underline-offset-2 hover:underline text-[var(--text-muted)]"
+                          @click="toggleExpanded(data.id)">
+                          {{
+                            isExpanded(data.id)
+                              ? 'Ver menos'
+                              : `+${(data.assignedUserIds?.length ?? 0) - 2}`
+                          }}
+                        </button>
+                      </div>
+
+                      <div class="flex flex-wrap gap-2">
+                        <Button label="Tomar" size="small" @click="toggleSelf(data, true)"
+                          :disabled="(data.assignedUserIds ?? []).includes(currentUserId)" />
+                        <Button label="Quitarme" size="small" severity="secondary" @click="toggleSelf(data, false)"
+                          :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)" />
+                      </div>
+                    </template>
+                  </template>
+                </Column>
+              </DataTable>
+            </div>
+
+            <!-- Mobile: lista tipo cards -->
+            <div class="sm:hidden border-t border-[var(--border)]">
+              <div v-for="it in items" :key="it.id"
+                class="px-3 py-3 border-b border-[var(--border)] flex flex-col gap-2 text-xs">
+                <!-- fila superior: nombre + precios -->
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="font-medium truncate">{{ it.name }}</div>
+                    <div v-if="(it.assignedUserIds?.length ?? 0) > 0" class="text-[11px] text-[var(--text-muted)]">
+                      Compartido entre {{ it.assignedUserIds?.length ?? 0 }}
+                    </div>
+                  </div>
+
+                  <div class="text-right text-[11px] leading-snug">
+                    <div class="tabular-nums font-semibold">
+                      {{ currency(it.price * it.qty) }}
+                    </div>
+                    <div class="tabular-nums text-[var(--text-muted)]">
+                      {{ currency(it.price) }} × {{ it.qty }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Asignado a + acciones -->
+                <div class="flex flex-col gap-2 mt-1">
+                  <!-- ADMIN -->
+                  <template v-if="isAdmin">
+                    <MultiSelect :modelValue="it.assignedUserIds" @update:modelValue="(v) => onAdminAssignChange(it, v)"
+                      :options="users" optionLabel="nombre" optionValue="id" display="comma" :filter="false"
+                      :showToggleAll="false" :maxSelectedLabels="1" selectedItemsLabel="{0} personas"
+                      class="w-full text-xs" placeholder="Selecciona personas…" :pt="adminMultiSelectPt" />
+                  </template>
+
+
+                  <!-- MIEMBRO -->
                   <template v-else>
-                    <div v-if="(data.assignedUserIds?.length ?? 0) > 0" class="mb-2 flex flex-wrap items-center gap-1">
-                      <Tag v-for="uid in visibleAssigned(data.id, data.assignedUserIds)" :key="uid"
-                        :value="userLabel(uid)" rounded class="text-xs" />
-                      <button v-if="(data.assignedUserIds?.length ?? 0) > 2" type="button"
+                    <div v-if="(it.assignedUserIds?.length ?? 0) > 0" class="flex flex-wrap items-center gap-1 mb-1">
+                      <Tag v-for="uid in visibleAssigned(it.id, it.assignedUserIds)" :key="uid" :value="userLabel(uid)"
+                        rounded class="text-[11px]" />
+                      <button v-if="(it.assignedUserIds?.length ?? 0) > 2" type="button"
                         class="text-[11px] underline-offset-2 hover:underline text-[var(--text-muted)]"
-                        @click="toggleExpanded(data.id)">
+                        @click="toggleExpanded(it.id)">
                         {{
-                          isExpanded(data.id)
+                          isExpanded(it.id)
                             ? 'Ver menos'
-                            : `+${(data.assignedUserIds?.length ?? 0) - 2}`
+                            : `+${(it.assignedUserIds?.length ?? 0) - 2}`
                         }}
                       </button>
                     </div>
 
                     <div class="flex flex-wrap gap-2">
-                      <Button label="Tomar" size="small" @click="toggleSelf(data, true)"
-                        :disabled="(data.assignedUserIds ?? []).includes(currentUserId)" />
-                      <Button label="Quitarme" size="small" severity="secondary" @click="toggleSelf(data, false)"
-                        :disabled="!(data.assignedUserIds ?? []).includes(currentUserId)" />
+                      <Button label="Tomar" size="small" @click="toggleSelf(it, true)"
+                        :disabled="(it.assignedUserIds ?? []).includes(currentUserId)" />
+                      <Button label="Quitarme" size="small" severity="secondary" @click="toggleSelf(it, false)"
+                        :disabled="!(it.assignedUserIds ?? []).includes(currentUserId)" />
                     </div>
                   </template>
-                </template>
-              </Column>
-            </DataTable>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- DERECHA: Totales -->
-        <div class="lg:col-span-4">
+        <div>
           <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4">
               <div class="font-medium">Resumen</div>
@@ -451,9 +499,13 @@ async function shareLink() {
                     <div class="h-6 w-6 rounded-full bg-[var(--surface-1)] grid place-items-center text-xs">
                       {{ u.nombre.charAt(0).toUpperCase() }}
                     </div>
-                    <span class="text-sm truncate max-w-[10rem]">{{ u.nombre }}</span>
+                    <span class="text-sm truncate max-w-[10rem]">
+                      {{ u.nombre }}
+                    </span>
                   </div>
-                  <div class="font-semibold tabular-nums">{{ currency(totalsByUser[u.id] ?? 0) }}</div>
+                  <div class="font-semibold tabular-nums">
+                    {{ currency(totalsByUser[u.id] ?? 0) }}
+                  </div>
                 </div>
               </div>
 
@@ -468,15 +520,36 @@ async function shareLink() {
           </div>
         </div>
       </div>
-
-      <!-- Dialog: Boleta -->
-      <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
-        <div class="w-full">
-          <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
-            class="w-full h-auto rounded-xl border border-[var(--border)]" />
-          <div v-else class="text-sm text-[var(--text-muted)]">Sin imagen (demo)</div>
-        </div>
-      </Dialog>
     </AppCard>
+
+    <!-- Dialog: Boleta -->
+    <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
+      <div class="w-full">
+        <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
+          class="w-full h-auto rounded-xl border border-[var(--border)]" />
+        <div v-else class="text-sm text-[var(--text-muted)]">
+          Sin imagen (demo)
+        </div>
+      </div>
+    </Dialog>
   </div>
 </template>
+
+<style scoped>
+.board-layout {
+  /* mobile / tablet: columnas apiladas */
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* desktop: 2 columnas (aprox 2/3 y 1/3) */
+@media (min-width: 1024px) {
+  .board-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+}
+</style>

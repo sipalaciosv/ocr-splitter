@@ -1,17 +1,39 @@
 <script setup lang="ts">
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
-import Avatar from 'primevue/avatar'
 import { useUiStore } from '@/stores/ui'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 
 const ui = useUiStore()
+const auth = useAuthStore()
 const router = useRouter()
 
-const auth = useAuthStore()
-const { user } = storeToRefs(auth) // reactividad segura
+const { user } = storeToRefs(auth)
+
+// --- Detectar si estamos en “desktop” por ancho de ventana ---
+const isDesktop = ref(false)
+
+const updateIsDesktop = () => {
+    // mismo breakpoint que md: (768px)
+    isDesktop.value = window.innerWidth >= 768
+}
+
+onMounted(() => {
+    updateIsDesktop()
+    window.addEventListener('resize', updateIsDesktop)
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateIsDesktop)
+})
+
+// Nombre amigable para mostrar en el navbar
+const userName = computed(
+    () => user.value?.displayName || user.value?.email || 'Invitado',
+)
 
 function goHome() {
     router.push({ path: '/' })
@@ -19,42 +41,40 @@ function goHome() {
 </script>
 
 <template>
-    <header data-app-navbar
-        class="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface-0)]/90 backdrop-blur">
-        <Toolbar class="max-w-6xl mx-auto px-3 sm:px-4">
-            <template #start>
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <!-- Logo / marca -->
-                    <Avatar shape="circle" class="bg-[var(--brand-primary)] text-white" icon="pi pi-receipt" />
-                    <button class="text-base sm:text-lg font-semibold hover:opacity-80 transition" @click="goHome"
-                        aria-label="Inicio">
-                        OCR Splitter
-                    </button>
-                </div>
-            </template>
+    <Toolbar class="border-none rounded-none">
+        <template #start>
+            <!-- Logo / título -->
+            <button type="button" class="flex items-center gap-2" @click="goHome">
+                <span class="pi pi-receipt text-lg" />
+                <span class="font-semibold text-sm md:text-base">
+                    OCR Splitter
+                </span>
+            </button>
+        </template>
 
-            <template #center>
-                <!-- Links centrados (se ocultan en móvil) -->
-                <nav class="hidden md:flex items-center gap-1">
-                    <Button label="Subir" text @click="router.push('/')" />
-                    <Button label="Grupo" text @click="router.push('/grupo/grp_demo')" />
-                    <Button label="Resumen" text @click="router.push('/resumen/demo')" />
-                </nav>
-            </template>
+        <template #end>
+            <!-- DESKTOP: nombre + textos + iconos -->
+            <div v-if="isDesktop" class="flex items-center gap-4">
+                <span class="text-sm text-[var(--p-text-color-secondary)]">
+                    {{ userName }}
+                </span>
 
-            <template #end>
-                <div class="flex items-center gap-2">
-                    <Button :label="ui.dark ? 'Claro' : 'Oscuro'" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'" text
-                        @click="ui.toggleDark()" />
-                    <template v-if="user">
-                        <span class="text-sm opacity-80 mr-2">{{ user?.email }}</span>
-                        <Button icon="pi pi-sign-out" text @click="auth.signOutApp()" />
-                    </template>
-                    <template v-else>
-                        <Button label="Entrar" text @click="router.push('/login')" />
-                    </template>
-                </div>
-            </template>
-        </Toolbar>
-    </header>
+                <!-- Botón modo claro/oscuro con texto -->
+                <Button severity="secondary" text size="small" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'"
+                    :label="ui.dark ? 'Modo claro' : 'Modo oscuro'" @click="ui.toggleDark()" />
+
+                <!-- Botón cerrar sesión con texto -->
+                <Button severity="secondary" text size="small" icon="pi pi-sign-out" label="Cerrar sesión"
+                    @click="auth.signOutApp()" />
+            </div>
+
+            <!-- MOBILE: solo iconos -->
+            <div v-else class="flex items-center gap-2">
+                <Button severity="secondary" text rounded size="small" :icon="ui.dark ? 'pi pi-sun' : 'pi pi-moon'"
+                    aria-label="Cambiar tema" @click="ui.toggleDark()" />
+                <Button severity="secondary" text rounded size="small" icon="pi pi-sign-out" aria-label="Cerrar sesión"
+                    @click="auth.signOutApp()" />
+            </div>
+        </template>
+    </Toolbar>
 </template>

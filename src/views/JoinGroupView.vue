@@ -15,7 +15,6 @@ const toast = useToast()
 const groupId = computed(() => String(route.params.id))
 
 async function doJoin() {
-  // Si no hay sesión, mandamos a login con redirect a ESTA misma ruta (/join/:id)
   if (!auth.user) {
     return router.push({ name: 'login', query: { redirect: route.fullPath } })
   }
@@ -57,11 +56,9 @@ function goToLogin() {
         </p>
 
         <div class="pt-2">
-          <!-- Si NO hay usuario logueado -->
           <Button v-if="!auth.user" label="Iniciar sesión / Registrarme" icon="pi pi-user" class="w-full"
             @click="goToLogin" />
 
-          <!-- Si YA está logueado y entra directo a /join/:id -->
           <Button v-else label="Unirme al grupo ahora" icon="pi pi-check" class="w-full" @click="doJoin" />
         </div>
       </div>

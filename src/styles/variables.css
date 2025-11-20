@@ -1,6 +1,6 @@
 :root {
-  --surface-0: #ffffff;   /* fondo de card en CLARO */
-  --surface-1: #f8fafc;   /* fondo de página en CLARO */
+  --surface-0: #ffffff;   
+  --surface-1: #f8fafc;  
   --border: #e5e7eb;
   --text-0: #0f172a;
   --text-muted: #6b7280;
@@ -11,8 +11,8 @@
 }
 
 :root.dark {
-  --surface-0: #1a1c23;   /* fondo de card en OSCURO */
-  --surface-1: #0b0f1a;   /* fondo de página en OSCURO */
+  --surface-0: #1a1c23;   
+  --surface-1: #0b0f1a;   
   --border: #2a2d35;
   --text-0: #e5e7eb;
   --text-muted: #9ca3af;

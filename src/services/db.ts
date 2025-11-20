@@ -25,7 +25,6 @@ export type MemberDoc = {
 }
 
 
-// Crea grupo + membership admin en la misma operación (2 escrituras)
 export async function createGroup(
   groupId: string,
   title: string,
@@ -53,7 +52,6 @@ export async function createGroup(
 
 
 
-// Agregar miembro como 'member'
 export async function joinGroup(
   groupId: string,
   uid: string,
@@ -70,7 +68,7 @@ export async function joinGroup(
       photoURL: profile.photoURL ?? null,
       updatedAt: serverTimestamp(),
     },
-    { merge: true } // si ya existía, solo agrega/actualiza estos campos
+    { merge: true } 
   )
 }
 
@@ -122,11 +120,9 @@ export async function isMember(groupId: string, uid: string) {
     const snap = await getDoc(doc(db, 'groups', groupId, 'members', uid))
     return snap.exists()
   } catch (e: any) {
-    // Si Firestore no deja leer (por reglas), lo tratamos como "no es miembro"
     if (e?.code === 'permission-denied') {
       return false
     }
-    // Otros errores sí los propagamos
     throw e
   }
 }
@@ -136,7 +132,6 @@ export async function isAdmin(groupId: string, uid: string) {
   const m = await getDoc(doc(db, 'groups', groupId, 'members', uid))
   return m.exists() && m.data()?.role === 'admin'
 }
-// Suscripción en tiempo real a items del grupo
 export function subscribeItems(groupId: string, cb: (items: (ItemDoc & { id: string })[]) => void) {
   const colRef = collection(db, 'groups', groupId, 'items')
   const off = onSnapshot(colRef, (snap) => {
@@ -145,7 +140,6 @@ export function subscribeItems(groupId: string, cb: (items: (ItemDoc & { id: str
   })
   return off
 }
-// (opcional) sembrar items desde una lista (útil la primera vez)
 export async function seedItems(groupId: string, items: (ItemDoc & { id: string })[]) {
   for (const it of items) {
     await setDoc(doc(db, 'groups', groupId, 'items', it.id), {
@@ -154,12 +148,10 @@ export async function seedItems(groupId: string, items: (ItemDoc & { id: string 
     })
   }
 }
-// Admin: setear lista completa de asignados
 export async function setItemAssignments(groupId: string, itemId: string, assignedUserIds: string[]) {
   await updateDoc(doc(db, 'groups', groupId, 'items', itemId), { assignedUserIds })
 }
 
-// Miembro: tomar/quitarse del ítem
 export async function claimItem(groupId: string, itemId: string, uid: string) {
   try {
     await updateDoc(doc(db, 'groups', groupId, 'items', itemId), {

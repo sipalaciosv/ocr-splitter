@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
 import UploadView from '../views/UploadView.vue'
 import LoginView from '../views/LoginView.vue'
 import JoinGroupView from '../views/JoinGroupView.vue'
@@ -8,7 +9,10 @@ import { isMember } from '@/services/db'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'upload', component: UploadView },
+    { path: '/', name: 'home', component: HomeView },
+
+    { path: '/app', name: 'upload', component: UploadView },
+
     { path: '/login', name: 'login', component: LoginView },
     { path: '/join/:id', name: 'join', component: JoinGroupView },
     {
@@ -17,7 +21,6 @@ const router = createRouter({
       component: () => import('@/views/GroupView.vue'),
       beforeEnter: async (to) => {
         const auth = useAuthStore()
-        // 👇 asegura que Firebase resolvió el estado de sesión
         await auth.waitForInit()
 
         const id = String(to.params.id)

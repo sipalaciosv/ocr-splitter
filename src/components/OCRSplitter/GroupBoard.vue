@@ -11,7 +11,6 @@ import Dialog from 'primevue/dialog'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 
-// Firestore helpers
 import {
   subscribeMembers,
   subscribeItems,
@@ -21,7 +20,6 @@ import {
   unclaimItem,
 } from '@/services/db'
 
-// Mock “metadata” del grupo/boleta (mientras no guardemos todo en Firestore)
 import {
   mockGetGroupById,
   mockGetReceiptById,
@@ -31,11 +29,6 @@ import {
   type MockReceipt,
   type MockReceiptItem,
 } from '@/services/mocks'
-const adminMultiSelectPt = {
-  root: { class: 'h-8 text-xs' },           // alto bajito + texto chico
-  label: { class: 'py-1 text-xs truncate' }, // padding vertical mínimo
-  dropdown: { class: 'w-7' },               // icono más pequeño
-} as const
 
 type Props = { groupId: string }
 const props = defineProps<Props>()
@@ -45,11 +38,10 @@ const auth = useAuthStore()
 
 const loading = ref(true)
 const group = ref<MockGroup | null>(null)
-const users = ref<MockUser[]>([])                 // fuente para MultiSelect / chips
+const users = ref<MockUser[]>([])
 const receipt = ref<MockReceipt | null>(null)
-const items = ref<MockReceiptItem[]>([])          // SIEMPRE viene de Firestore (onSnapshot)
+const items = ref<MockReceiptItem[]>([])
 
-// miembros reales (Firestore) — para mostrar nombres en vez de IDs
 const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
 let offMembers: (() => void) | null = null
 const currentUserId = computed(() => auth.user?.uid ?? '')
@@ -57,10 +49,8 @@ const isAdmin = computed(() =>
   members.value.some(m => m.uid === currentUserId.value && m.role === 'admin')
 )
 
-// ver boleta
 const showReceipt = ref(false)
 
-// gestión del "+N"
 const expandedItems = ref<string[]>([])
 
 function isExpanded(id: string) {
@@ -79,7 +69,6 @@ function visibleAssigned(id: string, assigned?: string[]) {
   return list.slice(0, 2)
 }
 
-// unsubscribe de items
 let offItems: (() => void) | null = null
 
 const currency = (n: number) =>
@@ -89,7 +78,6 @@ onMounted(async () => {
   try {
     loading.value = true
 
-    // 1) Grupo mock (para título/owner mientras no guardemos todo en Firestore)
     const g = await mockGetGroupById(props.groupId)
     if (!g) {
       toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
@@ -97,7 +85,6 @@ onMounted(async () => {
     }
     group.value = g
 
-    // 2) Miembros reales desde Firestore (SUSCRIPCIÓN en tiempo real)
     try {
       offMembers = subscribeMembers(props.groupId, (rows) => {
         members.value = rows.map((r) => ({
@@ -106,7 +93,6 @@ onMounted(async () => {
           name: r.displayName || r.email || r.uid,
         }))
 
-        // Fuente del MultiSelect / chips
         users.value = members.value.map((m) => ({
           id: m.uid,
           nombre: m.name,
@@ -117,11 +103,9 @@ onMounted(async () => {
       users.value = []
     }
 
-    // 3) Metadata de boleta (mock por ahora, para título/imagen)
     const r = await mockGetReceiptById(g.receiptId)
     receipt.value = r
 
-    // 4) Suscripción tiempo real a items de Firestore
     offItems = subscribeItems(props.groupId, (rows) => {
       items.value = rows.map(r => ({
         id: r.id,
@@ -131,8 +115,6 @@ onMounted(async () => {
         assignedUserIds: [...(r.assignedUserIds ?? [])],
       }))
     })
-
-    // 5) Si aún no hay items en Firestore, sembramos desde el mock (solo 1ª vez)
     setTimeout(async () => {
       if (isAdmin.value && (items.value?.length ?? 0) === 0 && receipt.value?.items?.length) {
         try {
@@ -160,10 +142,15 @@ onBeforeUnmount(() => {
   offMembers?.()
 })
 
-/** Subtotales por ítem */
 const itemSubtotal = (it: MockReceiptItem) => it.price * it.qty
+const assignedCount = (it: MockReceiptItem) => it.assignedUserIds?.length ?? 0
 
-/** Totales por persona = sum(itemSubtotal / #asignados) */
+const sharePerPerson = (it: MockReceiptItem) => {
+  const count = assignedCount(it) || 1
+  return itemSubtotal(it) / count
+}
+
+
 const totalsByUser = computed(() => {
   const acc: Record<string, number> = {}
   users.value.forEach(u => (acc[u.id] = 0))
@@ -189,10 +176,10 @@ const totalAsignado = computed(() => {
   return s
 })
 
-/** UI Helpers */
+
 const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? id
 
-// ==== Acciones ADMIN (persisten en Firestore) ====
+
 async function onAdminAssignChange(it: MockReceiptItem, newList: string[]) {
   try {
     await setItemAssignments(props.groupId, it.id, newList)
@@ -221,7 +208,7 @@ async function fillMyself(uid: string) {
   }
 }
 
-// ==== Acciones MIEMBRO (solo auto-asignarse/quitarse) ====
+
 async function toggleSelf(it: MockReceiptItem, want: boolean) {
   if (!currentUserId.value) return
   try {
@@ -255,7 +242,7 @@ async function toggleSelf(it: MockReceiptItem, want: boolean) {
   }
 }
 
-// Link compartir: siempre invitación a /join/:groupId
+
 const joinUrl = computed(() => {
   if (typeof window === 'undefined') return ''
   const origin = window.location.origin
@@ -276,7 +263,7 @@ async function shareLink() {
     try {
       await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
     } catch {
-      /* cancelado por el usuario */
+
     }
   } else if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(url)
@@ -292,7 +279,7 @@ async function shareLink() {
 <template>
   <div class="max-w-6xl w-full mx-auto px-3 sm:px-4 pt-6 sm:pt-8 md:pt-10 pb-8">
     <AppCard>
-      <!-- HEADER custom -->
+
       <template #header>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div class="min-w-0 space-y-2">
@@ -313,7 +300,7 @@ async function shareLink() {
             </p>
           </div>
 
-          <!-- Acciones del header -->
+
           <div class="flex flex-wrap justify-end gap-2">
             <Button label="Ver boleta" icon="pi pi-image" size="small" severity="secondary"
               @click="showReceipt = true" />
@@ -323,10 +310,9 @@ async function shareLink() {
         </div>
       </template>
 
-      <!-- CONTENIDO -->
-      <!-- 👇 usamos una clase propia en lugar de `grid` para evitar el choque PrimeFlex/Tailwind -->
+
       <div class="board-layout">
-        <!-- IZQUIERDA: Tabla de ítems -->
+
         <div>
           <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -339,46 +325,58 @@ async function shareLink() {
               </div>
             </div>
 
-            <!-- Desktop / tablet: DataTable -->
-            <div class="hidden sm:block">
-              <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="width: 100%; table-layout: fixed"
-                class="text-sm" size="small" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
-                <Column field="name" header="Producto" sortable style="width: 32%">
-                  <template #body="{ data }">
-                    <div class="font-medium truncate">{{ data.name }}</div>
-                    <div class="text-xs text-[var(--text-muted)]" v-if="(data.assignedUserIds?.length ?? 0) > 0">
-                      Compartido entre {{ data.assignedUserIds?.length ?? 0 }}
-                    </div>
-                  </template>
-                </Column>
 
-                <Column field="price" header="Precio" sortable style="width: 14%" bodyClass="text-right">
+            <div class="board-desktop">
+              <DataTable :value="items" dataKey="id" :loading="loading" tableStyle="width: 100%;" class="text-sm"
+                size="small" :rows="10" paginator :rowsPerPageOptions="[10, 20, 50]">
+                <Column header="Ítem" style="width: 55%">
                   <template #body="{ data }">
-                    <span class="tabular-nums">{{ currency(data.price) }}</span>
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <div class="font-medium truncate">
+                          {{ data.name }}
+                        </div>
+
+                        <div v-if="(data.assignedUserIds?.length ?? 0) > 0" class="mt-1 flex flex-wrap gap-1">
+                          <Tag v-for="uid in visibleAssigned(data.id, data.assignedUserIds)" :key="uid"
+                            :value="userLabel(uid)" rounded class="text-[11px]" />
+                          <button v-if="(data.assignedUserIds?.length ?? 0) > 2" type="button"
+                            class="text-[11px] underline-offset-2 hover:underline text-[var(--text-muted)]"
+                            @click="toggleExpanded(data.id)">
+                            {{
+                              isExpanded(data.id)
+                                ? 'Ver menos'
+                                : `+${(data.assignedUserIds?.length ?? 0) - 2}`
+                            }}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="text-right text-xs leading-snug shrink-0">
+                        <div class="tabular-nums font-semibold">
+                          {{ currency(itemSubtotal(data)) }}
+                        </div>
+
+                        <div class="tabular-nums text-[var(--text-muted)]">
+                          {{ currency(sharePerPerson(data)) }}
+                          × {{ assignedCount(data) || 1 }}
+                        </div>
+                      </div>
+                    </div>
                   </template>
                 </Column>
 
                 <Column field="qty" header="Cant." sortable style="width: 10%" bodyClass="text-center tabular-nums" />
 
-                <Column header="Subtotal" sortable style="width: 18%" bodyClass="text-right font-semibold tabular-nums">
+                <Column header="Asignado a" style="width: 35%">
                   <template #body="{ data }">
-                    {{ currency(data.price * data.qty) }}
-                  </template>
-                </Column>
-
-                <Column header="Asignado a" style="width: 26%">
-                  <template #body="{ data }">
-                    <!-- Admin: edición completa (persistente) -->
                     <template v-if="isAdmin">
                       <MultiSelect :modelValue="data.assignedUserIds"
                         @update:modelValue="(v) => onAdminAssignChange(data, v)" :options="users" optionLabel="nombre"
-                        optionValue="id" display="comma" :filter="false" :showToggleAll="false" :maxSelectedLabels="1"
-                        selectedItemsLabel="{0} personas" class="w-full" placeholder="Selecciona personas…"
-                        :pt="adminMultiSelectPt" />
+                        optionValue="id" :filter="false" :showToggleAll="false" class="multi-assign"
+                        placeholder="Selecciona personas…" />
                     </template>
 
-
-                    <!-- Miembro: solo auto-asignarse / quitarse -->
                     <template v-else>
                       <div v-if="(data.assignedUserIds?.length ?? 0) > 0"
                         class="mb-2 flex flex-wrap items-center gap-1">
@@ -407,11 +405,9 @@ async function shareLink() {
               </DataTable>
             </div>
 
-            <!-- Mobile: lista tipo cards -->
-            <div class="sm:hidden border-t border-[var(--border)]">
+            <div class="board-mobile border-t border-[var(--border)]">
               <div v-for="it in items" :key="it.id"
                 class="px-3 py-3 border-b border-[var(--border)] flex flex-col gap-2 text-xs">
-                <!-- fila superior: nombre + precios -->
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
                     <div class="font-medium truncate">{{ it.name }}</div>
@@ -430,47 +426,22 @@ async function shareLink() {
                   </div>
                 </div>
 
-                <!-- Asignado a + acciones -->
                 <div class="flex flex-col gap-2 mt-1">
-                  <!-- ADMIN -->
                   <template v-if="isAdmin">
                     <MultiSelect :modelValue="it.assignedUserIds" @update:modelValue="(v) => onAdminAssignChange(it, v)"
-                      :options="users" optionLabel="nombre" optionValue="id" display="comma" :filter="false"
-                      :showToggleAll="false" :maxSelectedLabels="1" selectedItemsLabel="{0} personas"
-                      class="w-full text-xs" placeholder="Selecciona personas…" :pt="adminMultiSelectPt" />
+                      :options="users" optionLabel="nombre" optionValue="id" display="chip" :filter="false"
+                      :showToggleAll="false" :maxSelectedLabels="3" class="w-full text-xs multi-assign"
+                      placeholder="Selecciona personas…" />
                   </template>
-
-
-                  <!-- MIEMBRO -->
                   <template v-else>
-                    <div v-if="(it.assignedUserIds?.length ?? 0) > 0" class="flex flex-wrap items-center gap-1 mb-1">
-                      <Tag v-for="uid in visibleAssigned(it.id, it.assignedUserIds)" :key="uid" :value="userLabel(uid)"
-                        rounded class="text-[11px]" />
-                      <button v-if="(it.assignedUserIds?.length ?? 0) > 2" type="button"
-                        class="text-[11px] underline-offset-2 hover:underline text-[var(--text-muted)]"
-                        @click="toggleExpanded(it.id)">
-                        {{
-                          isExpanded(it.id)
-                            ? 'Ver menos'
-                            : `+${(it.assignedUserIds?.length ?? 0) - 2}`
-                        }}
-                      </button>
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">
-                      <Button label="Tomar" size="small" @click="toggleSelf(it, true)"
-                        :disabled="(it.assignedUserIds ?? []).includes(currentUserId)" />
-                      <Button label="Quitarme" size="small" severity="secondary" @click="toggleSelf(it, false)"
-                        :disabled="!(it.assignedUserIds ?? []).includes(currentUserId)" />
-                    </div>
                   </template>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
-        <!-- DERECHA: Totales -->
         <div>
           <div class="rounded-2xl border border-[var(--border)] bg-[var(--surface-0)] shadow-sm">
             <div class="p-4">
@@ -522,7 +493,6 @@ async function shareLink() {
       </div>
     </AppCard>
 
-    <!-- Dialog: Boleta -->
     <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
       <div class="w-full">
         <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
@@ -537,19 +507,76 @@ async function shareLink() {
 
 <style scoped>
 .board-layout {
-  /* mobile / tablet: columnas apiladas */
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-/* desktop: 2 columnas (aprox 2/3 y 1/3) */
 @media (min-width: 1024px) {
   .board-layout {
     display: grid;
     grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
     align-items: flex-start;
     gap: 1.25rem;
+  }
+}
+
+.board-desktop {
+  display: none;
+}
+
+.board-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .board-desktop {
+    display: block;
+  }
+
+  .board-mobile {
+    display: none;
+  }
+}
+
+.multi-assign {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .multi-assign {
+    width: auto;
+    max-width: 12rem;
+  }
+}
+
+.multi-assign :deep(.p-multiselect-label) {
+  min-height: 1.75rem;
+  padding-block: 0.15rem;
+  font-size: 0.75rem;
+}
+
+.multi-assign :deep(.p-multiselect-trigger) {
+  width: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .multi-assign :deep(.p-multiselect-token) {
+    display: none;
+  }
+}
+
+@media (max-width: 639px) {
+  .multi-assign :deep(.p-multiselect-token) {
+    padding-block: 0.05rem;
+    padding-inline: 0.35rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .multi-assign :deep(.p-multiselect-label) {
+    color: transparent;
   }
 }
 </style>

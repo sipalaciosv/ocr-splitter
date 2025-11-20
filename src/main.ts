@@ -1,4 +1,3 @@
-// src/main.ts
 import './styles/tailwind.css'
 import './styles/variables.css'
 import './assets/main.css'
@@ -19,12 +18,10 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
-// 🔹 Conectamos Aura al selector `.dark`
 app.use(PrimeVue, {
   theme: {
     preset: Aura,
     options: {
-      // PrimeVue se pone en modo oscuro cuando encuentre .dark
       darkModeSelector: '.dark',
     },
   },

@@ -1,4 +1,3 @@
-// src/services/mocks.ts
 // === Tipos ===
 export type MockUser = {
   id: string
@@ -10,7 +9,7 @@ export type MockReceiptItem = {
   name: string
   price: number
   qty: number
-  assignedUserIds?: string[] // multi-asignación para dividir
+  assignedUserIds?: string[] 
 
 }
 
@@ -24,8 +23,8 @@ export type MockReceipt = {
 export type MockGroup = {
   id: string
   nombre: string
-  ownerId?: string        // si prefieres mantener compatibilidad
-  ownerUid?: string       // <- usa este en el front
+  ownerId?: string        
+  ownerUid?: string      
   miembros: string[]
   receiptId: string
 }
@@ -56,7 +55,7 @@ const GROUPS: MockGroup[] = [
   {
     id: 'grp_demo',
     nombre: 'Viernes en el Pub',
-    ownerUid: 'u1',            // <-- dueño explícito
+    ownerUid: 'u1',            
     miembros: ['u1', 'u2', 'u3'],
     receiptId: 'r_demo'
   }
@@ -74,7 +73,6 @@ export async function mockGetReceiptById(id: string): Promise<MockReceipt> {
   await delay()
   const r = RECEIPTS.find(r => r.id === id)
   if (!r) throw new Error('Receipt no encontrado')
-  // devolver copia inmutable
   return JSON.parse(JSON.stringify(r))
 }
 
@@ -83,7 +81,7 @@ export async function mockListUsersByIds(ids: string[]): Promise<MockUser[]> {
   return USERS.filter(u => ids.includes(u.id))
 }
 
-// (Opcional) crear grupo nuevo a partir de una boleta escaneada
+
 export async function mockCreateGroupFromReceipt(params: { nombre: string; miembroIds: string[]; receipt: MockReceipt }): Promise<MockGroup> {
   await delay()
   const rid = `r_${Math.random().toString(36).slice(2, 7)}`
@@ -93,7 +91,7 @@ export async function mockCreateGroupFromReceipt(params: { nombre: string; miemb
   GROUPS.push(g)
   return g
 }
-// === Tipos OCR (para UploadView) ===
+// === Tipos OCR ===
 export type OcrItem = {
   id: string
   descripcion: string
@@ -103,13 +101,9 @@ export type OcrItem = {
 
 // === Mock OCR principal ===
 export async function ocrMock(fileName: string): Promise<{ grupoId: string; items: OcrItem[] }> {
-  // Simula latencia
   await new Promise((r) => setTimeout(r, 400))
-
-  // Genera un grupo "nuevo" de mentira (puedes cambiarlo por grp_demo si quieres)
   const grupoId = 'grp_demo'
 
-  // Items ejemplo (puedes mutar estos datos a gusto)
   const items: OcrItem[] = [
     { id: 'o1', descripcion: 'Papas fritas', monto: 6000, categoria: 'Comida' },
     { id: 'o2', descripcion: 'Cerveza', monto: 3000, categoria: 'Bebida' },

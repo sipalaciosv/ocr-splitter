@@ -6,7 +6,6 @@ import { useAuthStore } from '@/stores/auth'
 import { createGroup } from '@/services/db'
 
 import AppCard from '@/components/AppCard.vue'
-// PrimeVue...
 import FileUpload from 'primevue/fileupload'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -17,7 +16,6 @@ import InputNumber from 'primevue/inputnumber'
 
 import { ocrMock, type OcrItem } from '@/services/mocks'
 
-// ===== state
 const toast = useToast()
 const router = useRouter()
 const auth = useAuthStore()
@@ -27,14 +25,12 @@ const fileName = ref<string | null>(null)
 const grupoId = ref<string | null>(null)
 const rows = ref<OcrItem[]>([])
 
-// ===== computed
 const hasResult = computed(() => rows.value.length > 0)
 const totalCLP = computed(() =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 })
     .format(rows.value.reduce((a, r) => a + (Number(r.monto) || 0), 0))
 )
 
-// ===== handlers
 async function onCustomUpload(evt: any) {
   const file = evt.files?.[0]
   if (!file) return
@@ -42,9 +38,8 @@ async function onCustomUpload(evt: any) {
     uploading.value = true
     fileName.value = file.name
 
-    // simulamos OCR
     const res = await ocrMock(file.name)
-    grupoId.value = res.grupoId // por ahora viene 'grp_demo' del mock
+    grupoId.value = res.grupoId
     rows.value = res.items
 
     toast.add({ severity: 'success', summary: 'OCR simulado', detail: `Grupo ${res.grupoId}`, life: 2500 })
@@ -65,33 +60,31 @@ function removeRow(id: string) {
   rows.value = rows.value.filter((r: OcrItem) => r.id !== id)
 }
 
-// 👇 NUEVO: continuar → crea grupo (si no existe) y navega
 async function onContinue() {
   if (!hasResult.value || !grupoId.value) return
 
-  // si no hay sesión, manda a login con redirect
   if (!auth.user) {
     return router.push({ name: 'login', query: { redirect: `/grupo/${grupoId.value}` } })
   }
 
   try {
-    // Crea el grupo y tu membresía admin (id = grupoId del mock por ahora)
     await createGroup(
-  grupoId.value,
-  fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
-  {
-    uid: auth.user.uid,
-    displayName: auth.user.displayName,
-    email: auth.user.email,
-    photoURL: auth.user.photoURL,
-  }
-)
+      grupoId.value,
+      fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
+      {
+        uid: auth.user.uid,
+        displayName: auth.user.displayName,
+        email: auth.user.email,
+        photoURL: auth.user.photoURL,
+      }
+    )
 
   } catch (e) {
-    // si ya existía, no pasa nada (setDoc sobrescribe); lo dejamos silencioso
+
+    console.error('Error al crear el grupo:', e)
   }
 
-  // navega al grupo (el guard te dejará pasar porque ya eres miembro admin)
+
   router.push({ name: 'grupo', params: { id: grupoId.value } })
 }
 </script>
@@ -100,7 +93,7 @@ async function onContinue() {
 <template>
   <div class="max-w-4xl mx-auto">
     <AppCard title="Cargar boleta" subtitle="Paso 1 · Subir imagen">
-      <!-- Uploader -->
+
       <div class="space-y-4">
         <FileUpload mode="advanced" name="files[]" accept="image/*,application/pdf" :maxFileSize="8_000_000"
           :multiple="false" chooseLabel="Seleccionar" uploadLabel="Procesar OCR" cancelLabel="Limpiar"
@@ -109,13 +102,13 @@ async function onContinue() {
             content: { class: 'bg-transparent border border-[var(--border)] rounded-xl' }
           }" />
 
-        <!-- Estado de carga -->
+
         <div v-if="uploading" class="grid grid-cols-1 gap-3">
           <Skeleton height="12rem" class="rounded-xl" />
           <Skeleton height="2.75rem" class="rounded-xl" />
         </div>
 
-        <!-- Resultados -->
+
         <div v-else-if="hasResult" class="space-y-3">
           <div class="flex items-center justify-between">
             <div class="text-sm text-[var(--text-muted)]">
@@ -150,13 +143,12 @@ async function onContinue() {
           </DataTable>
         </div>
 
-        <!-- Placeholder inicial -->
+
         <div v-else class="text-sm text-[var(--text-muted)]">
           Aquí irá el componente de subida y las validaciones.
         </div>
       </div>
 
-      <!-- Footer -->
       <template #footer>
         <div class="flex items-center justify-end gap-3">
           <Button label="Continuar" icon="pi pi-arrow-right" :disabled="!hasResult" @click="onContinue" />

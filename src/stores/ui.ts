@@ -1,4 +1,4 @@
-// src/stores/ui.ts
+
 import { defineStore } from 'pinia'
 
 const STORAGE_KEY = 'ui:dark'
@@ -9,7 +9,7 @@ export const useUiStore = defineStore('ui', {
   }),
   actions: {
     initTheme() {
-      // 1) lee del storage o del SO la 1ª vez
+
       const saved = localStorage.getItem(STORAGE_KEY)
       this.dark =
         saved !== null
@@ -21,10 +21,10 @@ export const useUiStore = defineStore('ui', {
     applyTheme() {
       const root = document.documentElement
 
-      // Tailwind + variables CSS en :root / :root.dark
+  
       root.classList.toggle('dark', this.dark)
 
-      // Hints para el navegador (scrollbars, formularios, etc.)
+
       root.style.colorScheme = this.dark ? 'dark' : 'light'
     },
     toggleDark() {

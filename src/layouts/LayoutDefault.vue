@@ -4,8 +4,8 @@ import AppNavbar from '@/components/AppNavbar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import Toast from 'primevue/toast'
 
-const spacerH = ref('24px') // bajo navbar
-const spacerF = ref('24px') // sobre footer
+const spacerH = ref('24px')
+const spacerF = ref('24px')
 
 let roH: ResizeObserver | null = null
 let roF: ResizeObserver | null = null
@@ -59,7 +59,6 @@ onBeforeUnmount(() => {
     <AppNavbar />
     <Toast position="top-right" />
 
-    <!-- Spacer dinámico bajo navbar -->
     <div :style="{ height: spacerH }" class="shrink-0 pointer-events-none"></div>
 
     <main class="flex-1 w-full">
@@ -68,7 +67,6 @@ onBeforeUnmount(() => {
       </div>
     </main>
 
-    <!-- Spacer dinámico sobre footer -->
     <div :style="{ height: spacerF }" class="shrink-0 pointer-events-none"></div>
 
     <AppFooter />

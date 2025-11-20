@@ -14,7 +14,6 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(true)
   let inited = false
 
-  // Inicializa SIEMPRE (incluso si el store se usa en router, no en componentes)
   function init() {
     if (inited) return
     inited = true
@@ -25,10 +24,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
   init()
 
-  // Espera a que Firebase procese el primer estado de sesión
   async function waitForInit() {
     if (!loading.value) return
-    // Firebase 10+ expone authStateReady(); si no, cae a una espera corta
+
     if (typeof (auth as any).authStateReady === 'function') {
       await (auth as any).authStateReady()
     } else {

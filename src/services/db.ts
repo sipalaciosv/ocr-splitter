@@ -1,7 +1,7 @@
 import {
   collection, doc, getDoc, setDoc, serverTimestamp, onSnapshot, updateDoc, arrayUnion, arrayRemove,
-  getDocs, 
- 
+  getDocs,
+
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -28,7 +28,8 @@ export type MemberDoc = {
 export async function createGroup(
   groupId: string,
   title: string,
-  owner: { uid: string; displayName: string | null; email: string | null; photoURL: string | null }
+  owner: { uid: string; displayName: string | null; email: string | null; photoURL: string | null },
+  items?: (ItemDoc & { id: string })[]  // Items opcionales del OCR
 ) {
   const gRef = doc(db, 'groups', groupId)
   const mRef = doc(db, 'groups', groupId, 'members', owner.uid)
@@ -47,7 +48,29 @@ export async function createGroup(
     photoURL: owner.photoURL ?? null,
   } as MemberDoc)
 
+  // Si hay items, guardarlos en Firestore
+  if (items && items.length > 0) {
+    await seedItems(groupId, items)
+  }
+
   return { groupId }
+}
+
+/**
+ * Obtener información básica del grupo desde Firestore
+ */
+export async function getGroupById(groupId: string): Promise<GroupDoc | null> {
+  try {
+    const snap = await getDoc(doc(db, 'groups', groupId))
+    if (!snap.exists()) return null
+    return snap.data() as GroupDoc
+  } catch (e: any) {
+    console.error('getGroupById error:', e)
+    if (e?.code === 'permission-denied') {
+      return null
+    }
+    throw e
+  }
 }
 
 
@@ -68,7 +91,7 @@ export async function joinGroup(
       photoURL: profile.photoURL ?? null,
       updatedAt: serverTimestamp(),
     },
-    { merge: true } 
+    { merge: true }
   )
 }
 

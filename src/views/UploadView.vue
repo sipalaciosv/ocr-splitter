@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { v4 as uuidv4 } from 'uuid'
 import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 import { createGroup } from '@/services/db'
@@ -38,12 +39,16 @@ async function onCustomUpload(evt: any) {
     uploading.value = true
     fileName.value = file.name
 
-    const res = await ocrMock(file.name)
-    grupoId.value = res.grupoId
+    // Pasar el objeto File completo al backend OCR
+    const res = await ocrMock(file)
+    
+    // Generar grupoId único si el backend no lo proporciona
+    grupoId.value = res.grupoId || uuidv4()
     rows.value = res.items
 
-    toast.add({ severity: 'success', summary: 'OCR simulado', detail: `Grupo ${res.grupoId}`, life: 2500 })
-  } catch {
+    toast.add({ severity: 'success', summary: 'OCR procesado', detail: `${res.items.length} items detectados`, life: 2500 })
+  } catch (error) {
+    console.error('Error en OCR:', error)
     toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo procesar la imagen.', life: 2500 })
   } finally {
     uploading.value = false
@@ -68,6 +73,21 @@ async function onContinue() {
   }
 
   try {
+    // Mapear items del OCR al formato de Firestore
+    const firestoreItems = rows.value.map(item => ({
+      id: item.id,
+      name: item.descripcion,
+      price: item.monto,
+      qty: item.qty || 1,
+      assignedUserIds: []
+    }))
+
+    console.log('📦 Items que se guardarán en Firestore:', firestoreItems.map(i => ({
+      name: i.name,
+      price: i.price,
+      qty: i.qty
+    })))
+
     await createGroup(
       grupoId.value,
       fileName.value ? `Grupo · ${fileName.value}` : 'Grupo · OCR',
@@ -76,12 +96,19 @@ async function onContinue() {
         displayName: auth.user.displayName,
         email: auth.user.email,
         photoURL: auth.user.photoURL,
-      }
+      },
+      firestoreItems  // Pasar items del OCR
     )
+
+    // Dar tiempo a Firestore para sincronizar antes de navegar
+    console.log('✅ Grupo creado, esperando sincronización...')
+    await new Promise(resolve => setTimeout(resolve, 800))
 
   } catch (e) {
 
     console.error('Error al crear el grupo:', e)
+    toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el grupo', life: 3000 })
+    return
   }
 
 
@@ -124,6 +151,12 @@ async function onContinue() {
           <DataTable :value="rows" dataKey="id" class="rounded-xl overflow-hidden border border-[var(--border)]"
             :pt="{ table: { class: 'min-w-full' } }">
             <Column field="descripcion" header="Descripción" />
+            <Column field="qty" header="Cant." style="width: 80px">
+              <template #body="{ data }">
+                <InputNumber v-model="data.qty" :min="1" :max="99" showButtons buttonLayout="horizontal" class="w-20"
+                  incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" />
+              </template>
+            </Column>
             <Column header="Monto">
               <template #body="{ data }">
                 <InputNumber v-model="data.monto" inputId="monto" mode="currency" currency="CLP" locale="es-CL" :min="0"

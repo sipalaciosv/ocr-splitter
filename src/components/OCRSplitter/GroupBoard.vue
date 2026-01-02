@@ -12,6 +12,7 @@ import { useToast } from 'primevue/usetoast'
 import { useAuthStore } from '@/stores/auth'
 
 import {
+  getGroupById,
   subscribeMembers,
   subscribeItems,
   seedItems,
@@ -20,36 +21,34 @@ import {
   unclaimItem,
 } from '@/services/db'
 
-import {
-  mockGetGroupById,
-  mockGetReceiptById,
 
-  type MockGroup,
-  type MockUser,
-  type MockReceipt,
-  type MockReceiptItem,
-} from '@/services/mocks'
 
 type Props = { groupId: string }
 const props = defineProps<Props>()
+
+// Tipo local para items
+type Item = {
+  id: string
+  name: string
+  price: number
+  qty: number
+  assignedUserIds: string[]
+}
 
 const toast = useToast()
 const auth = useAuthStore()
 
 const loading = ref(true)
-const group = ref<MockGroup | null>(null)
-const users = ref<MockUser[]>([])
-const receipt = ref<MockReceipt | null>(null)
-const items = ref<MockReceiptItem[]>([])
+const groupTitle = ref<string | null>(null)
+const items = ref<{ id: string; name: string; price: number; qty: number; assignedUserIds: string[] }[]>([])
 
 const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
+const users = ref<{ id: string; nombre: string }[]>([])
 let offMembers: (() => void) | null = null
 const currentUserId = computed(() => auth.user?.uid ?? '')
 const isAdmin = computed(() =>
   members.value.some(m => m.uid === currentUserId.value && m.role === 'admin')
 )
-
-const showReceipt = ref(false)
 
 const expandedItems = ref<string[]>([])
 
@@ -78,12 +77,12 @@ onMounted(async () => {
   try {
     loading.value = true
 
-    const g = await mockGetGroupById(props.groupId)
+    const g = await getGroupById(props.groupId)
     if (!g) {
       toast.add({ severity: 'warn', summary: 'Grupo no encontrado', life: 3000 })
       return
     }
-    group.value = g
+    groupTitle.value = g.title
 
     try {
       offMembers = subscribeMembers(props.groupId, (rows) => {
@@ -103,9 +102,6 @@ onMounted(async () => {
       users.value = []
     }
 
-    const r = await mockGetReceiptById(g.receiptId)
-    receipt.value = r
-
     offItems = subscribeItems(props.groupId, (rows) => {
       items.value = rows.map(r => ({
         id: r.id,
@@ -115,21 +111,6 @@ onMounted(async () => {
         assignedUserIds: [...(r.assignedUserIds ?? [])],
       }))
     })
-    setTimeout(async () => {
-      if (isAdmin.value && (items.value?.length ?? 0) === 0 && receipt.value?.items?.length) {
-        try {
-          await seedItems(props.groupId, receipt.value.items.map(i => ({
-            id: i.id,
-            name: i.name,
-            price: i.price,
-            qty: i.qty,
-            assignedUserIds: i.assignedUserIds ?? [],
-          })))
-        } catch (e: any) {
-          console.warn('seedItems:', e?.message ?? e)
-        }
-      }
-    }, 300)
   } catch (e) {
     toast.add({ severity: 'error', summary: 'Error cargando grupo', detail: String(e), life: 4500 })
   } finally {
@@ -142,10 +123,10 @@ onBeforeUnmount(() => {
   offMembers?.()
 })
 
-const itemSubtotal = (it: MockReceiptItem) => it.price * it.qty
-const assignedCount = (it: MockReceiptItem) => it.assignedUserIds?.length ?? 0
+const itemSubtotal = (it: Item) => it.price * it.qty
+const assignedCount = (it: Item) => it.assignedUserIds?.length ?? 0
 
-const sharePerPerson = (it: MockReceiptItem) => {
+const sharePerPerson = (it: Item) => {
   const count = assignedCount(it) || 1
   return itemSubtotal(it) / count
 }
@@ -180,7 +161,7 @@ const totalAsignado = computed(() => {
 const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? id
 
 
-async function onAdminAssignChange(it: MockReceiptItem, newList: string[]) {
+async function onAdminAssignChange(it: Item, newList: string[]) {
   try {
     await setItemAssignments(props.groupId, it.id, newList)
   } catch (e: any) {
@@ -209,7 +190,7 @@ async function fillMyself(uid: string) {
 }
 
 
-async function toggleSelf(it: MockReceiptItem, want: boolean) {
+async function toggleSelf(it: Item, want: boolean) {
   if (!currentUserId.value) return
   try {
     if (want) {
@@ -261,7 +242,7 @@ async function shareLink() {
   if (!url || typeof navigator === 'undefined') return
   if (typeof navigator.share === 'function') {
     try {
-      await navigator.share({ title: group.value?.nombre ?? 'Grupo', url })
+      await navigator.share({ title: groupTitle.value ?? 'Grupo', url })
     } catch {
 
     }
@@ -285,7 +266,7 @@ async function shareLink() {
           <div class="min-w-0 space-y-2">
             <!-- Nombre del grupo -->
             <h1 class="text-base sm:text-xl font-semibold leading-tight truncate">
-              {{ group?.nombre ?? 'Grupo' }}
+              {{ groupTitle ?? 'Grupo' }}
             </h1>
 
             <div class="flex flex-wrap items-center gap-2">
@@ -295,15 +276,13 @@ async function shareLink() {
 
             <!-- Línea secundaria -->
             <p class="text-xs text-[var(--text-muted)]">
-              Boleta · {{ receipt?.titulo ?? '—' }} · {{ items.length }} ítems ·
+              Boleta · {{ items.length }} ítems ·
               Total {{ currency(totalGeneral) }}
             </p>
           </div>
 
 
           <div class="flex flex-wrap justify-end gap-2">
-            <Button label="Ver boleta" icon="pi pi-image" size="small" severity="secondary"
-              @click="showReceipt = true" />
             <Button v-if="isAdmin" label="Reiniciar" icon="pi pi-refresh" size="small" severity="danger" outlined
               :disabled="loading" @click="clearAssignments" />
           </div>
@@ -492,16 +471,6 @@ async function shareLink() {
         </div>
       </div>
     </AppCard>
-
-    <Dialog v-model:visible="showReceipt" modal header="Boleta" :style="{ width: 'min(92vw, 720px)' }">
-      <div class="w-full">
-        <img v-if="receipt?.imageUrl" :src="receipt.imageUrl" alt="Boleta"
-          class="w-full h-auto rounded-xl border border-[var(--border)]" />
-        <div v-else class="text-sm text-[var(--text-muted)]">
-          Sin imagen (demo)
-        </div>
-      </div>
-    </Dialog>
   </div>
 </template>
 

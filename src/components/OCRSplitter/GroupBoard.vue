@@ -15,11 +15,13 @@ import {
   getGroupById,
   subscribeMembers,
   subscribeItems,
-  seedItems,
-  setItemAssignments,
-  claimItem,
-  unclaimItem,
 } from '@/services/db'
+
+import {
+  assignItem as apiAssignItem,
+  claimItem as apiClaimItem,
+  unclaimItem as apiUnclaimItem,
+} from '@/services/api'
 
 
 
@@ -41,6 +43,8 @@ const auth = useAuthStore()
 const loading = ref(true)
 const groupTitle = ref<string | null>(null)
 const items = ref<{ id: string; name: string; price: number; qty: number; assignedUserIds: string[] }[]>([])
+const includeTip = ref(false)      // Si el grupo incluye propina
+const tipPercentage = ref(10)      // Porcentaje de propina
 
 const members = ref<{ uid: string; name: string; role: 'admin' | 'member' }[]>([])
 const users = ref<{ id: string; nombre: string }[]>([])
@@ -83,6 +87,8 @@ onMounted(async () => {
       return
     }
     groupTitle.value = g.title
+    includeTip.value = g.includeTip ?? false
+    tipPercentage.value = g.tipPercentage ?? 10
 
     try {
       offMembers = subscribeMembers(props.groupId, (rows) => {
@@ -135,6 +141,8 @@ const sharePerPerson = (it: Item) => {
 const totalsByUser = computed(() => {
   const acc: Record<string, number> = {}
   users.value.forEach(u => (acc[u.id] = 0))
+
+  // Calcular subtotal por usuario
   for (const it of items.value) {
     const assigned = it.assignedUserIds ?? []
     if (!assigned.length) continue
@@ -143,6 +151,16 @@ const totalsByUser = computed(() => {
       acc[uid] = (acc[uid] ?? 0) + share
     }
   }
+
+  // Agregar propina proporcional si está habilitada
+  if (includeTip.value && tipPercentage.value > 0) {
+    for (const uid in acc) {
+      const subtotal = acc[uid] || 0
+      const tip = Math.round(subtotal * (tipPercentage.value / 100))
+      acc[uid] = subtotal + tip
+    }
+  }
+
   return acc
 })
 
@@ -163,7 +181,7 @@ const userLabel = (id: string) => users.value.find(u => u.id === id)?.nombre ?? 
 
 async function onAdminAssignChange(it: Item, newList: string[]) {
   try {
-    await setItemAssignments(props.groupId, it.id, newList)
+    await apiAssignItem(props.groupId, it.id, newList)
   } catch (e: any) {
     toast.add({ severity: 'error', summary: 'No se pudo actualizar', detail: e?.message ?? String(e), life: 2500 })
   }
@@ -172,7 +190,7 @@ async function onAdminAssignChange(it: Item, newList: string[]) {
 async function clearAssignments() {
   if (!isAdmin.value) return
   try {
-    await Promise.all(items.value.map(it => setItemAssignments(props.groupId, it.id, [])))
+    await Promise.all(items.value.map(it => apiAssignItem(props.groupId, it.id, [])))
     toast.add({ severity: 'info', summary: 'Asignaciones reiniciadas', life: 2500 })
   } catch (e: any) {
     toast.add({ severity: 'error', summary: 'Error al reiniciar', detail: e?.message ?? String(e), life: 2500 })
@@ -182,7 +200,7 @@ async function clearAssignments() {
 async function fillMyself(uid: string) {
   if (!isAdmin.value || !uid) return
   try {
-    await Promise.all(items.value.map(it => setItemAssignments(props.groupId, it.id, [uid])))
+    await Promise.all(items.value.map(it => apiAssignItem(props.groupId, it.id, [uid])))
     toast.add({ severity: 'success', summary: 'Te asignaste todos los ítems', life: 2500 })
   } catch (e: any) {
     toast.add({ severity: 'error', summary: 'Error al asignar', detail: e?.message ?? String(e), life: 2500 })
@@ -194,14 +212,14 @@ async function toggleSelf(it: Item, want: boolean) {
   if (!currentUserId.value) return
   try {
     if (want) {
-      await claimItem(props.groupId, it.id, currentUserId.value)
+      await apiClaimItem(props.groupId, it.id)
       toast.add({
         severity: 'success',
         summary: `Te agregaste a "${it.name}"`,
         life: 2000,
       })
     } else {
-      await unclaimItem(props.groupId, it.id, currentUserId.value)
+      await apiUnclaimItem(props.groupId, it.id)
       toast.add({
         severity: 'info',
         summary: `Te quitaste de "${it.name}"`,
@@ -431,30 +449,51 @@ async function shareLink() {
 
               <Divider class="my-3" />
 
-              <div class="flex justify-between text-sm mb-1">
-                <span>Total boleta</span>
-                <span class="font-medium">{{ currency(totalGeneral) }}</span>
-              </div>
-              <div class="flex justify-between text-sm mb-4">
-                <span>Ítems asignados</span>
-                <span class="font-medium">{{ currency(totalAsignado) }}</span>
+              <!-- Totales -->
+              <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-between py-2">
+                  <span class="text-sm text-[var(--text-muted)]">Total boleta</span>
+                  <span class="font-bold text-lg">{{ currency(totalGeneral) }}</span>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                  <span class="text-sm text-[var(--text-muted)]">Asignados</span>
+                  <span class="font-semibold text-base">{{ currency(totalAsignado) }}</span>
+                </div>
               </div>
 
-              <div class="text-xs text-[var(--text-muted)] mb-2">
-                Totales por persona
+              <!-- Propina -->
+              <div v-if="includeTip" class="mb-4 p-3.5 bg-[var(--primary-color)] text-white rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="font-semibold text-base">✓ Propina incluida</span>
+                  <span class="text-2xl font-bold">{{ tipPercentage }}%</span>
+                </div>
+                <div class="text-xs opacity-90">
+                  Se agrega proporcional a cada consumo
+                </div>
               </div>
-              <div class="space-y-2">
-                <div v-for="u in users" :key="u.id" class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="h-6 w-6 rounded-full bg-[var(--surface-1)] grid place-items-center text-xs">
-                      {{ u.nombre.charAt(0).toUpperCase() }}
+
+              <Divider class="my-3" />
+
+              <!-- A Pagar -->
+              <div class="mb-3">
+                <div class="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide mb-3">
+                  {{ includeTip ? '💰 A pagar (incluye propina)' : '💰 A pagar' }}
+                </div>
+                <div class="space-y-2.5">
+                  <div v-for="u in users" :key="u.id"
+                    class="flex items-center justify-between p-3 rounded-lg bg-[var(--surface-100)] dark:bg-[var(--surface-700)] border-l-4 border-[var(--primary-color)]">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="h-10 w-10 rounded-full bg-[var(--primary-color)] grid place-items-center text-white font-bold text-sm shadow-sm">
+                        {{ u.nombre.charAt(0).toUpperCase() }}
+                      </div>
+                      <span class="font-medium text-sm">
+                        {{ u.nombre }}
+                      </span>
                     </div>
-                    <span class="text-sm truncate max-w-[10rem]">
-                      {{ u.nombre }}
+                    <span class="font-bold text-xl text-[var(--primary-color)] tabular-nums">
+                      {{ currency(totalsByUser[u.id] ?? 0) }}
                     </span>
-                  </div>
-                  <div class="font-semibold tabular-nums">
-                    {{ currency(totalsByUser[u.id] ?? 0) }}
                   </div>
                 </div>
               </div>

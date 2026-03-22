@@ -104,9 +104,9 @@ export type OcrItem = {
 /**
  * Procesa una imagen de boleta usando el backend OCR
  * @param file - Archivo de imagen a procesar
- * @returns Objeto con grupoId vacío e items extraídos
+ * @returns Objeto con grupoId vacío, items extraídos y flag de propina sugerida
  */
-export async function ocrMock(file: File): Promise<{ grupoId: string; items: OcrItem[] }> {
+export async function ocrMock(file: File): Promise<{ grupoId: string; items: OcrItem[]; hasSuggestedTip?: boolean }> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -138,7 +138,8 @@ export async function ocrMock(file: File): Promise<{ grupoId: string; items: Ocr
 
     return {
       grupoId: '', // Se generará al crear el grupo
-      items
+      items,
+      hasSuggestedTip: data.hasSuggestedTip || false,
     };
   } catch (error) {
     console.error('Error en ocrMock:', error);

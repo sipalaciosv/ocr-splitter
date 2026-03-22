@@ -9,6 +9,8 @@ export type GroupDoc = {
   title: string
   ownerUid: string
   createdAt: any
+  includeTip?: boolean
+  tipPercentage?: number
 }
 export type ItemDoc = {
   name: string

@@ -1,3 +1,5 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
 // === Tipos ===
 export type MockUser = {
   id: string
@@ -111,7 +113,7 @@ export async function ocrMock(file: File): Promise<{ grupoId: string; items: Ocr
   formData.append('file', file);
 
   try {
-    const response = await fetch('http://localhost:3000/api/ocr/process', {
+    const response = await fetch(`${API_URL}/api/ocr/process`, {
       method: 'POST',
       body: formData,
     });

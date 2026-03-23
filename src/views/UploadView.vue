@@ -230,7 +230,7 @@ async function onContinue() {
 
 
         <div v-else class="text-sm text-[var(--text-muted)]">
-          Aquí irá el componente de subida y las validaciones.
+
         </div>
       </div>
 

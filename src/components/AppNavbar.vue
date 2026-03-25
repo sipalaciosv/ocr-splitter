@@ -58,7 +58,7 @@ function goLogin() {
                     <span class="pi pi-receipt text-base" />
                     <span class="flex flex-col text-left leading-tight">
                         <span class="text-sm font-semibold">
-                            OCR Splitter
+                            CuentasClaras
                         </span>
                         <span class="text-[10px] uppercase tracking-[0.18em]
                      text-[var(--text-muted)]">

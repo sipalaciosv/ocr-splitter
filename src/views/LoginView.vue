@@ -123,7 +123,7 @@ async function submit() {
                         {{ isSignUp ? 'Crear cuenta' : 'Iniciar sesión' }}
                     </span>
                     <h1 class="text-lg sm:text-xl font-semibold leading-tight">
-                        {{ isSignUp ? 'Empieza a dividir tus boletas' : 'Bienvenido a OCR Splitter' }}
+                        {{ isSignUp ? 'Empieza a dividir tus boletas' : 'Bienvenido a CuentasClaras' }}
                     </h1>
                     <p class="text-xs text-[var(--text-muted)]">
 

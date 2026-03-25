@@ -7,7 +7,7 @@ const year = new Date().getFullYear()
         <div class="max-w-6xl mx-auto px-4 py-6 text-sm">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p class="text-[var(--text-muted)]">
-                    © {{ year }} OCR Splitter — Prototipo de tesis
+                    © {{ year }} CuentasClaras
                 </p>
                 <div class="flex items-center gap-4">
                     <a class="hover:underline text-[var(--text-muted)]" href="#" rel="nofollow">Ayuda</a>

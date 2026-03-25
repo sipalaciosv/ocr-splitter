@@ -20,7 +20,7 @@ function goToApp() {
                         <div class="flex flex-col gap-3 sm:gap-4">
                             <span class="inline-flex items-center rounded-full border border-[var(--border)]
                        px-3 py-1 text-[11px] uppercase tracking-wide text-[var(--text-muted)]">
-                                Prototipo de tesis · OCR Splitter
+                                CuentasClaras
                             </span>
 
                             <div class="space-y-2">
@@ -51,7 +51,7 @@ function goToApp() {
 
                 <div class="mt-4 text-xs sm:text-sm text-[var(--text-muted)] space-y-2">
                     <p>1. Sube la foto de tu boleta o PDF.</p>
-                    <p>2. OCR Splitter detecta los ítems y genera un grupo.</p>
+                    <p>2. CuentasClaras detecta los ítems y genera un grupo.</p>
                     <p>
                         3. Comparte el link con tus amigos, cada uno toma lo que le corresponde y el sistema
                         reparte automáticamente el total.
